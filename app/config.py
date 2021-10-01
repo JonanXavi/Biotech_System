@@ -3,7 +3,7 @@ import os
 '''BDD'''
 username = ''
 password = ''
-dsn = '192.168.100.136/xe'
+dsn = '192.168.100.146/xe'
 port = 1521
 encoding = 'UTF-8'
 

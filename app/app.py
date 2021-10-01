@@ -8,6 +8,8 @@ from config import DevelopmentConfig
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
+app.config["CACHE_TYPE"] = "null"
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 csrf = CSRFProtect(app)
 
 @app.route("/")
@@ -17,9 +19,12 @@ def index():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
 
+    msg = ''
     connection = None
 
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+    if 'username' in session:
+        return render_template('panel.html')
+    elif request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username']
         password = request.form['password']
 
@@ -31,22 +36,26 @@ def login():
             for row in rows:
                 print(row)'''
             cursor.close()
+            connection.close()
             
         except Exception as ex:
             print("Error durante la conexión: {}".format(ex))
 
         if connection is not None:
             session['username'] = username
+            session['password'] = password
+
             return redirect(url_for('panel'))
         else:
-            print('Acceso denegado')
+            msg = 'Usuario o contraseña incorrecto'
 
-    return render_template('login.html')
+    return render_template('login.html', msg=msg)
 
 @app.route('/logout')
 def logout():
     if 'username' in session:
         session.pop('username', None)
+        session.pop('password', None)
     return redirect(url_for('index'))
 
 @app.route("/recover")
@@ -59,8 +68,6 @@ def panel():
         return render_template('panel.html')
         
     return redirect(url_for('login'))
-
-    #return render_template('login.html')
 
 if __name__=='__main__':
     csrf.init_app(app)
