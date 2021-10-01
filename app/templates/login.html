@@ -8,7 +8,10 @@
         <meta name="author" content="" />
         <title>Ingreso</title>
         <link href="{{ url_for('static', filename='css/admin/styles.css') }}" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     
     <body class="bg-primary2">
@@ -21,24 +24,33 @@
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Ingreso</h3></div>
                                     <div class="card-body">
-                                        <form>
+
+                                        <form action="{{ url_for('login') }}" method="POST">
+
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="username" required type="text" placeholder="Usuario" />
+                                                <input class="form-control" name="username" id="username" required type="text" placeholder="Usuario"/>
                                                 <label for="username">Usuario</label>
                                             </div>
+                                            
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="password" required type="password" placeholder="Contraseña" />
-                                                <label for="inputPassword">Contraseña</label>
+                                                <div class="input-group">
+                                                    <input class="form-control" name="password" id="password" required type="password" placeholder="Contraseña"/>
+                                                    <div class="input-group-append">
+                                                          <button id="show_password" class="btn btn-secondary" type="button" onclick="mostrarPassword()"> <span class="fa fa-eye-slash icon"></span> </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="form-check mb-3">
-                                                <input class="form-check-input" id="inputRememberPassword" type="checkbox" value="" />
-                                                <label class="form-check-label" for="inputRememberPassword">Recordar Contraseña</label>
-                                            </div>
+                                            
+                                            <div class="msg">{{ msg }}</div>
+
                                             <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                                                <a class="small" href="{{ url_for('recover') }}">¿Has olvidado tu contraseña?</a>
-                                                <a class="btn btn-primary" href="#">Acceder</a>
+                                                <a class="medium" href="{{ url_for('recover') }}">¿Has olvidado tu contraseña?</a>
+                                                <button class="btn btn-primary" type="submit">Acceder</button>
                                             </div>
                                         </form>
+
                                     </div>
                                 </div>
                             </div>

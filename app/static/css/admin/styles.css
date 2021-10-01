@@ -7426,7 +7426,7 @@ textarea.form-control-lg {
 }
 
 .bg-primary2 {
-  background-color: #bef2ff !important;
+  background-color: #44C3DA!important;
 }
 
 .bg-secondary {
@@ -7455,6 +7455,10 @@ textarea.form-control-lg {
 
 .bg-dark {
   background-color: #212529 !important;
+}
+
+.bg-puce {
+  background-color: #57bbd4 !important;
 }
 
 .bg-body {

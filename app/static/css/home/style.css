@@ -34,9 +34,9 @@ h4{font-size:18px; font-weight: 400}
 HEADER ROW STYLE
 ===========================*/
 #header-row{
-	background: #bef2ff;
+	background: #a6edff;
 	border-bottom:1px solid #eee;
-	padding: 15px 0;
+	padding: 15px;
 }
 
 #header-row .navbar{margin:10px 0 0 0;}

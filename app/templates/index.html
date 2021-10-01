@@ -44,18 +44,20 @@
 
             <!-- MAIN NAVIGATION -->  
               <div class="span9">
-                <div class="navbar  pull-right">
+                <div class="navbar">
                   <div class="navbar-inner">
                     <a data-target=".navbar-responsive-collapse" data-toggle="collapse" class="btn btn-navbar"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a>
                     <div class="nav-collapse collapse navbar-responsive-collapse">
-                    <ul class="nav">
 
-                        <li class="active"><a href="{{ url_for('index') }}">Inicio</a></li>
+                      <ul class="nav pull-left">
+                        <li><a href="{{ url_for('index') }}">Inicio</a></li>
+                      </ul>
+                    
+                      <ul class="nav pull-right">
                         <li><a href="{{ url_for('login') }}">Iniciar sesión</a></li>
-                 
-                    </ul>
-                  </div>
+                      </ul>
 
+                    </div>
                   </div>
                 </div>
               </div>
@@ -143,7 +145,10 @@
       <img src="{{ url_for('static', filename='img/home/icon1.png') }}">
       <h2>Drosophila</h2>
       <p>
-          También conocida como la mosca de la fruta, utilizada generalmente en la investigación científica y médica. 
+        Los genomas son herramientas de análisis biológico en varios campos de la investigación, entre ellos la conservación de la diversidad biológica y el estudio de los procesos evolutivos de las especies.
+      </p>
+      <p>
+        Los genomas de las especies de Drosophila son excelentes modelos para abordar estos temas en la región Neotropical.
       </p>
 
       <a href="#">Leer más &rarr;</a>
