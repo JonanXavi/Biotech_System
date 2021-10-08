@@ -1,15 +1,12 @@
 from flask import Flask, render_template, redirect, request, url_for, session
-from flask_wtf import CSRFProtect 
-import cx_Oracle
-
-import config
-
+from flask_wtf import CSRFProtect
 from config import DevelopmentConfig
+
+import cx_Oracle
+from controlador_archivos import conectar_bdd 
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
-app.config["CACHE_TYPE"] = "null"
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 csrf = CSRFProtect(app)
 
 @app.route("/")
@@ -20,7 +17,6 @@ def index():
 def login():
 
     msg = ''
-    connection = None
 
     if 'username' in session:
         return render_template('panel.html')
@@ -28,18 +24,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        try:
-            connection = cx_Oracle.connect(username, password, config.dsn, encoding=config.encoding)           
-            cursor = connection.cursor()
-            '''cursor.execute("select * from tab")
-            rows = cursor.fetchall()
-            for row in rows:
-                print(row)'''
-            cursor.close()
-            connection.close()
-            
-        except Exception as ex:
-            print("Error durante la conexión: {}".format(ex))
+        connection = conectar_bdd(username, password)
 
         if connection is not None:
             session['username'] = username
