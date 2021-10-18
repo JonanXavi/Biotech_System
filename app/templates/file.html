@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+
+{% block title %}Biotech Archivos{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Archivos del Usuario</h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <section class="section">
+                    <div class="columns">
+                        <div class="column">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                    <tr class="table-active">
+                                        <th class="col-2 text-center">Nombre</th>
+                                        <th class="col-lg-7 text-center">Descripción</th>
+                                        <th class="col-lg-1 text-center">Permisos</th>
+                                        <th colspan="2" class="col-lg-2 text-center">Opciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for archivo in archivos %}
+                                    <tr>
+                                        <td>{{archivo[0]}}</td>
+                                        <td>{{archivo[1]}}</td>
+                                        <td class="text-center">
+                                            {# Pasar el id (lo que hay en archivo[0] #}
+                                            <a class="btn btn-danger btn-sm" href="#">Editar</a>
+                                        </td>
+                                        <td class="text-center">
+                                            {# Pasar el id (lo que hay en archivo[0] #}
+                                            <a class="btn btn-info btn-sm" href="#">Compartir</a>
+                                        </td>
+                                        <td class="text-center">
+                                            {# Pasar el id (lo que hay en archivo[0] #}
+                                            <a class="btn btn-success btn-sm" href="#">Descargar</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
