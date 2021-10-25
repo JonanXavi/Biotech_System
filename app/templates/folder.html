@@ -16,8 +16,9 @@
                             <table class="table table-hover table-bordered">
                                 <thead>
                                     <tr class="table-active">
-                                        <th class="col-1 text-center">Nombre</th>
+                                        <th class="col-2 text-center">Nombre</th>
                                         <th class="col-lg-8 text-center">Descripción</th>
+                                        <th class="col-lg-1 text-center">Permisos</th>
                                         <th class="col-lg-1 text-center">Opciones</th>
                                     </tr>
                                 </thead>
@@ -27,8 +28,15 @@
                                         <td>{{carpeta[0]}}</td>
                                         <td>{{carpeta[1]}}</td>
                                         <td class="text-center">
-                                            {# Pasar el id (lo que hay en carpeta[0] #}
-                                            <a class="btn btn-success btn-sm" href="#">Abrir</a>
+                                            <a class="btn btn-danger btn-sm" href="#">Editar</a>
+                                        </td>
+                                        <td class="text-center">
+                                            <form action="{{ url_for('file') }}" method="POST">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                                                <input type="hidden" name="nombre" value="{{ carpeta[0] }}">
+                                                <button class="btn btn-success btn-sm">Abrir</button>
+                                            </form>
                                         </td>
                                     </tr>
                                     {% endfor %}

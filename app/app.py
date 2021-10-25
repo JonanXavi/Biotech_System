@@ -2,7 +2,9 @@ from flask import Flask, render_template, redirect, request, url_for, session
 from flask_wtf import CSRFProtect
 from config import DevelopmentConfig
 
-from controlador_archivos import inicio_sesion, mostrar_carpetas, mostrar_archivos 
+from bdd_controller import inicio_sesion
+from carpetas_controller import comprobar_carpetas, mostrar_carpetas
+from archivos_controller import mostrar_archivos
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -28,6 +30,8 @@ def login():
         if connection is not None:
             session['username'] = username
             session['password'] = password
+
+            comprobar_carpetas(username, password)
 
             return redirect(url_for('folder'))
         else:
@@ -55,12 +59,12 @@ def folder():
         
     return redirect(url_for('login'))
 
-@app.route("/file")
-def archivos():
+@app.route("/file", methods=["POST"])
+def file():
     if 'username' in session:
-        archivos = mostrar_archivos(session['username'], session['password'])
+        archivos = mostrar_archivos(session['username'], session['password'], request.form["nombre"])
 
-        return render_template('file.html', username=session['username'], archivos=archivos)
+        return render_template('file.html', username=session['username'], carpeta=request.form["nombre"], archivos=archivos)
         
     return redirect(url_for('login'))
 
