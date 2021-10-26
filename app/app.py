@@ -4,7 +4,7 @@ from config import DevelopmentConfig
 
 from bdd_controller import inicio_sesion
 from carpetas_controller import comprobar_carpetas, mostrar_carpetas
-from archivos_controller import mostrar_archivos
+from archivos_controller import comprobar_archivos, mostrar_archivos
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -62,6 +62,7 @@ def folder():
 @app.route("/file", methods=["POST"])
 def file():
     if 'username' in session:
+        comprobar_archivos(session['username'], session['password'], request.form["nombre"])
         archivos = mostrar_archivos(session['username'], session['password'], request.form["nombre"])
 
         return render_template('file.html', username=session['username'], carpeta=request.form["nombre"], archivos=archivos)
