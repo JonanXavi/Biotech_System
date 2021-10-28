@@ -91,7 +91,7 @@ def mostrar_carpetas(usuario, contrasena):
         cursor.execute("SELECT INVCEDULA FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
         ci = cursor.fetchone()
 
-        cursor.execute("SELECT CARNOMBRE, CARDESCRIPCION FROM CARPETA WHERE INVCEDULA = %s", (ci[0],))
+        cursor.execute("SELECT CARNOMBRE, GRPNOMBRE, CARDESCRIPCION, CARPRIVADO FROM CARPETA WHERE INVCEDULA = %s", (ci[0],))
         carpetas = cursor.fetchall()
         cursor.close()
         connection.close()
@@ -101,32 +101,5 @@ def mostrar_carpetas(usuario, contrasena):
     
     return carpetas
 
-'''
-def obtener_carpeta_id(usuario, contrasena, id):
-    try:
-        connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
-            user=usuario,
-            password=contrasena,
-            db='biologia'
-        )
-        
-        carpeta = None
-
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM CARPETA WHERE CARCODIGO = %s", (id,))
-        carpeta = cursor.fetchone()
-        cursor.close()
-        connection.close()
-        print("La conexión ha finalizado.")
-        print(carpeta)  
-
-    except Error as ex:
-        print("Error durante la conexión: {}".format(ex))
-    
-    return carpeta   
-'''
-
-def cambiar_permisos_carpeta():
+def actualizar_info_carpeta():
     pass

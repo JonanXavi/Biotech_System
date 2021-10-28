@@ -16,15 +16,15 @@ def comprobar_archivos(usuario, contrasena, nombre):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT INVPATHHOME FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
-        infoPath = cursor.fetchone()
-
-        path = infoPath[0]
-
         cursor.execute("SELECT ARCHNOMBRE FROM ARCHIVO WHERE CARNOMBRE = %s", (nombre,))
         archivosbd = cursor.fetchall()
 
         archivos = set().union(*archivosbd)
+
+        cursor.execute("SELECT INVPATHHOME FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        infoPath = cursor.fetchone()
+
+        path = infoPath[0]
 
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -88,10 +88,7 @@ def mostrar_archivos(usuario, contrasena, nombre):
     
     return archivos
 
-def obtener_archivo_id():
-    pass
-
-def cambiar_permisos_archivo():
+def actualizar_info_archivo():
     pass
 
 def compartir_archivo():

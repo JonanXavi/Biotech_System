@@ -11,6 +11,7 @@ app.config.from_object(DevelopmentConfig)
 csrf = CSRFProtect(app)
 
 @app.route("/")
+@app.route("/inicio")
 def index():
     return render_template('index.html')
 
@@ -50,22 +51,26 @@ def logout():
 def recover():
     return render_template('password.html')
 
-@app.route("/folder")
+@app.route("/folders")
 def folder():
     if 'username' in session:
         carpetas = mostrar_carpetas(session['username'], session['password'])
 
-        return render_template('folder.html', username=session['username'], carpetas=carpetas)
+        return render_template('folder.html', carpetas=carpetas)
         
     return redirect(url_for('login'))
 
-@app.route("/file", methods=["POST"])
+@app.route("/update_folder")
+def update_info():
+    pass
+
+@app.route("/files", methods=["POST"])
 def file():
     if 'username' in session:
         comprobar_archivos(session['username'], session['password'], request.form["nombre"])
         archivos = mostrar_archivos(session['username'], session['password'], request.form["nombre"])
 
-        return render_template('file.html', username=session['username'], carpeta=request.form["nombre"], archivos=archivos)
+        return render_template('file.html', carpeta=request.form["nombre"], archivos=archivos)
         
     return redirect(url_for('login'))
 

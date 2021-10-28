@@ -13,7 +13,7 @@
                 <section class="section">
                     <div class="columns">
                         <div class="column">
-                            <table class="table table-hover table-bordered">
+                            <table class="table table-hover table-bordered table-responsive">
                                 <thead>
                                     <tr class="table-active">
                                         <th class="col-2 text-center">Nombre</th>
@@ -26,9 +26,13 @@
                                     {% for carpeta in carpetas %}
                                     <tr>
                                         <td>{{carpeta[0]}}</td>
-                                        <td>{{carpeta[1]}}</td>
+                                        <input type="hidden" name="cargrupo" value="{{carpeta[1]}}"/>
+                                        <td>{{carpeta[2]}}</td>
+                                        <input type="hidden" name="carprivada" value="{{carpeta[3]}}"/>
                                         <td class="text-center">
-                                            <a class="btn btn-danger btn-sm" href="#">Editar</a>
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-carpeta_nombre="{{ carpeta[0] }}" data-bs-carpeta_grupo="{{ carpeta[1] }}" data-bs-carpeta_desc="{{ carpeta[2] }}" data-bs-carpeta_priv="{{ carpeta[3] }}" data-bs-target="#carpeta-editar">
+                                            Editar
+                                            </button>
                                         </td>
                                         <td class="text-center">
                                             <form action="{{ url_for('file') }}" method="POST">
@@ -49,5 +53,44 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="carpeta-editar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="carpeta-editarLabel">Nombre Carpeta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="grupo" type="text" placeholder="Grupo al que pertenece" readonly/>
+                            <label class="form-label fw-bold" for="grupo">Grupo</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Descripción:</label>
+                            <textarea class="form-control" id="descripcion-carpeta" rows="2"></textarea>
+                        </div>
+
+                        <div class="col-md-12 d-flex justify-content-center align-items-center">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="opcion" checked>
+                                <label class="form-check-label" for="flexSwitchCheckChecked">Carpeta Privada</label>
+                              </div>
+                        </div>
+
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Actualizar</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
 </main>
 {% endblock %}

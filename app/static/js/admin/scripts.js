@@ -8,14 +8,8 @@
 // 
 
 window.addEventListener('DOMContentLoaded', event => {
-
-    // Toggle the side navigation
     const sidebarToggle = document.body.querySelector('#sidebarToggle');
     if (sidebarToggle) {
-        // Uncomment Below to persist sidebar toggle between refreshes
-        // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-        //     document.body.classList.toggle('sb-sidenav-toggled');
-        // }
         sidebarToggle.addEventListener('click', event => {
             event.preventDefault();
             document.body.classList.toggle('sb-sidenav-toggled');
@@ -40,4 +34,31 @@ function mostrarPassword(){
 	$('#ShowPassword').click(function () {
 		$('#Password').attr('type', $(this).is(':checked') ? 'text' : 'password');
 	});
+});
+
+var carpetaModal = document.getElementById('carpeta-editar')
+carpetaModal.addEventListener('show.bs.modal', function (event) {
+
+  var button = event.relatedTarget
+
+  var nombreCarpeta = button.getAttribute('data-bs-carpeta_nombre')
+  var grupoCarperta = button.getAttribute('data-bs-carpeta_grupo')
+  var descripcionCarpeta = button.getAttribute('data-bs-carpeta_desc')
+  var Privado = button.getAttribute('data-bs-carpeta_priv')
+
+  var modalTitulo = document.querySelector('.modal-title')
+  var modalGrupo = document.querySelector('#grupo')
+  var modalBodyInput = document.querySelector('#descripcion-carpeta')
+  var modalBodyInput1 = document.querySelector('#opcion')
+
+  modalTitulo.textContent = nombreCarpeta
+  modalGrupo.value = grupoCarperta
+  modalBodyInput.value = descripcionCarpeta
+
+  if(Privado === 'S'){
+    modalBodyInput1.checked=true
+  }
+  else if(Privado === 'N'){
+    modalBodyInput1.checked=false
+  }
 });
