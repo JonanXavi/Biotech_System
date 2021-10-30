@@ -103,7 +103,6 @@ def mostrar_carpetas(usuario, contrasena):
 
 def actualizar_info_carpeta(usuario, contrasena, descripcion, opcion, nombre):
     try:
-        print('ASDNNDJNDJDNJNADJDKN')
         connection = mysql.connector.connect(
             host=HOST,
             port=3306,

@@ -12,6 +12,7 @@ archivoModal.addEventListener('show.bs.modal', function (event) {
   var descargar = button.getAttribute('data-bs-archivo_descarga')
 
   var modalTituloArch = document.querySelector('.modal-title')
+  var modalArchivo = document.querySelector('#nombreArchivo')
   var modalCarpeta = document.querySelector('#carpeta')
   var modalDescArchivo = document.querySelector('#descripcion-archivo')
   var modalDescargas = document.querySelector('#descargas')
@@ -20,6 +21,7 @@ archivoModal.addEventListener('show.bs.modal', function (event) {
   var modalDescarga = document.querySelector('#op-descarga')
 
   modalTituloArch.textContent = nombreArchivo
+  modalArchivo.value = nombreArchivo
   modalCarpeta.value = carpetaArchivo
   modalDescArchivo.value = descripcionArchivo
   modalDescargas.value = DescargasArchivo

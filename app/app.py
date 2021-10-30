@@ -4,7 +4,7 @@ from config import DevelopmentConfig
 
 from bdd_controller import inicio_sesion
 from carpetas_controller import comprobar_carpetas, mostrar_carpetas, actualizar_info_carpeta
-from archivos_controller import comprobar_archivos, mostrar_archivos
+from archivos_controller import comprobar_archivos, mostrar_archivos, actualizar_info_archivo
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -63,13 +63,11 @@ def folder():
 def update_info_folder():
     if 'username' in session:
         if request.method == 'POST' and 'descripcion' in request.form:
-            print('dsadasdsafsfsada')
-            nombre = request.form['nombre']
+            nombre = request.form['nombreCarpeta']
             descripcion = request.form['descripcion']
             opcion = 'S' if 'opcion' in request.form else 'N'
 
             actualizar_info_carpeta(session['username'], session['password'], descripcion, opcion, nombre)
-            current_app.logger.info('Hola mundo')
             return redirect(url_for('folder'))
 
     return redirect(url_for('login'))
@@ -82,6 +80,21 @@ def file():
 
         return render_template('file.html', carpeta=request.form["nombre"], archivos=archivos)
         
+    return redirect(url_for('login'))
+
+@app.route("/update_file", methods=['POST'])
+def update_info_file():
+    if 'username' in session:
+        if request.method == 'POST' and 'descripcion-archivo' in request.form:
+            nombre = request.form['nombreArchivo']
+            descripcion = request.form['descripcion-archivo']
+            publicable = 'S' if 'publicable' in request.form else 'N'
+            compartir = 'S' if 'compartir' in request.form else 'N'
+            descarga = 'S' if 'op-descarga' in request.form else 'N'
+
+            actualizar_info_archivo(session['username'], session['password'], descripcion, publicable, compartir, descarga, nombre)
+            return redirect(url_for('folder'))
+
     return redirect(url_for('login'))
 
 if __name__=='__main__':

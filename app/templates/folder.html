@@ -30,7 +30,7 @@
                                         <td>{{carpeta[2]}}</td>
                                         <input type="hidden" name="carprivada" value="{{carpeta[3]}}"/>
                                         <td class="text-center">
-                                            <button type="button" id="" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-carpeta_nombre="{{ carpeta[0] }}" data-bs-carpeta_grupo="{{ carpeta[1] }}" data-bs-carpeta_desc="{{ carpeta[2] }}" data-bs-carpeta_priv="{{ carpeta[3] }}" data-bs-target="#carpeta-editar">
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-carpeta_nombre="{{ carpeta[0] }}" data-bs-carpeta_grupo="{{ carpeta[1] }}" data-bs-carpeta_desc="{{ carpeta[2] }}" data-bs-carpeta_priv="{{ carpeta[3] }}" data-bs-target="#carpeta-editar">
                                             Editar
                                             </button>
                                         </td>
@@ -66,10 +66,10 @@
                     <form action="{{ url_for('update_info_folder') }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
-                        <input type="hidden" name="nombre" id="nombreCarpeta">
+                        <input type="hidden" name="nombreCarpeta" id="nombreCarpeta">
 
                         <div class="form-floating mb-3">
-                            <input class="form-control" name="grupo" id="grupo" type="text" placeholder="Grupo al que pertenece" readonly/>
+                            <input class="form-control" id="grupo" name="grupo" type="text" placeholder="Grupo al que pertenece" readonly/>
                             <label class="form-label fw-bold" for="grupo">Grupo</label>
                         </div>
 

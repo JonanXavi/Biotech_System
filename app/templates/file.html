@@ -59,54 +59,58 @@
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="archivo-editarLabel">Nombre Archivo</h5>
+                <h5 class="modal-title">Nombre Archivo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
 
-                    <form>
+                    <form action="{{ url_for('update_info_file') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                        <input type="hidden" name="nombreArchivo" id="nombreArchivo">
 
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="carpeta" type="text" placeholder="Carpeta del archivo" readonly/>
+                            <input class="form-control" id="carpeta" name="carpeta" type="text" placeholder="Carpeta del archivo" readonly/>
                             <label class="form-label fw-bold" for="carpeta">Carpeta</label>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Descripción:</label>
-                            <textarea class="form-control" id="descripcion-archivo" rows="2"></textarea>
+                            <textarea class="form-control" id="descripcion-archivo" name="descripcion-archivo" rows="2"></textarea>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="descargas" type="text" placeholder="Carpeta del archivo" readonly/>
+                            <input class="form-control" id="descargas" name="descargas" type="text" placeholder="Carpeta del archivo" readonly/>
                             <label class="form-label fw-bold" for="descargas">Número de Descargas</label>
                         </div>
 
                         <div class="col-md-12 d-flex justify-content-center">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="publicable" checked>
+                                <input class="form-check-input" type="checkbox" role="switch" id="publicable" name="publicable" checked>
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Archivo Publicable</label>
                               </div>
                         </div>
 
                         <div class="col-md-12 d-flex justify-content-center">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="compartir" checked>
+                                <input class="form-check-input" type="checkbox" role="switch" id="compartir" name="compartir" checked>
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Compartir Archivo</label>
                               </div>
                         </div>
 
                         <div class="col-md-12 d-flex justify-content-center">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="op-descarga" checked>
+                                <input class="form-check-input" type="checkbox" role="switch" id="op-descarga" name="op-descarga" checked>
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Habilitar Descarga</label>
                               </div>
                         </div>
 
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Actualizar</button>
+                        </div>
+
                     </form>
 
-                </div>
-                <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Actualizar</button>
                 </div>
             </div>
             </div>

@@ -88,8 +88,24 @@ def mostrar_archivos(usuario, contrasena, nombre):
     
     return archivos
 
-def actualizar_info_archivo():
-    pass
+def actualizar_info_archivo(usuario, contrasena, descripcion, publicable, compartir, descarga, nombre):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("UPDATE ARCHIVO SET ARCHDESCRIPCION = %s, ARCHPUBLICABLE = %s, ARCHCOMPARTIR = %s, ARCHDESCARGA = %s WHERE ARCHNOMBRE = %s", (descripcion, publicable, compartir, descarga, nombre,))
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
 
 def compartir_archivo():
     pass
