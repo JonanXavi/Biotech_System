@@ -16,7 +16,7 @@
                             <table class="table table-hover table-bordered table-responsive">
                                 <thead>
                                     <tr class="table-active">
-                                        <th class="col-2 text-center">Nombre</th>
+                                        <th class="col-2 text-center">Nombre del Archivo</th>
                                         <th class="col-lg-7 text-center">Descripción</th>
                                         <th class="col-lg-1 text-center">Permisos</th>
                                         <th colspan="2" class="col-lg-2 text-center">Opciones</th>
@@ -26,17 +26,21 @@
                                     {% for archivo in archivos %}
                                     <tr>
                                         <td>{{archivo[0]}}</td>
-                                        <td>{{archivo[1]}}</td>
+                                        <input type="hidden" name="carpeta_arch" value="{{archivo[1]}}"/>
+                                        <td>{{archivo[2]}}</td>
+                                        <input type="hidden" name="numdescargas" value="{{archivo[3]}}"/>
+                                        <input type="hidden" name="publicar" value="{{archivo[4]}}"/>
+                                        <input type="hidden" name="compartir" value="{{archivo[5]}}"/>
+                                        <input type="hidden" name="descargar" value="{{archivo[6]}}"/>
                                         <td class="text-center">
-                                            {# Pasar el id (lo que hay en archivo[0] #}
-                                            <a class="btn btn-danger btn-sm" href="#">Editar</a>
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-archivo_nombre="{{ archivo[0] }}" data-bs-archivo_carpeta="{{ archivo[1] }}" data-bs-archivo_desc="{{ archivo[2] }}" data-bs-num_descargas="{{ archivo[3] }}" data-bs-archivo_pub="{{ archivo[4] }}" data-bs-archivo_comp="{{ archivo[5] }}" data-bs-archivo_descarga="{{ archivo[6] }}" data-bs-target="#archivo-editar">
+                                            Editar
+                                            </button>
                                         </td>
                                         <td class="text-center">
-                                            {# Pasar el id (lo que hay en archivo[0] #}
                                             <a class="btn btn-info btn-sm" href="#">Compartir</a>
                                         </td>
                                         <td class="text-center">
-                                            {# Pasar el id (lo que hay en archivo[0] #}
                                             <a class="btn btn-success btn-sm" href="#">Descargar</a>
                                         </td>
                                     </tr>
@@ -50,5 +54,63 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="archivo-editar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="archivo-editarLabel">Nombre Archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="carpeta" type="text" placeholder="Carpeta del archivo" readonly/>
+                            <label class="form-label fw-bold" for="carpeta">Carpeta</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Descripción:</label>
+                            <textarea class="form-control" id="descripcion-archivo" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="descargas" type="text" placeholder="Carpeta del archivo" readonly/>
+                            <label class="form-label fw-bold" for="descargas">Número de Descargas</label>
+                        </div>
+
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="publicable" checked>
+                                <label class="form-check-label" for="flexSwitchCheckChecked">Archivo Publicable</label>
+                              </div>
+                        </div>
+
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="compartir" checked>
+                                <label class="form-check-label" for="flexSwitchCheckChecked">Compartir Archivo</label>
+                              </div>
+                        </div>
+
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="op-descarga" checked>
+                                <label class="form-check-label" for="flexSwitchCheckChecked">Habilitar Descarga</label>
+                              </div>
+                        </div>
+
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Actualizar</button>
+                </div>
+            </div>
+            </div>
+        </div>
 </main>
+<script src="{{ url_for('static', filename='js/admin/editarchivo.js') }}"></script>
 {% endblock %}

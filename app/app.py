@@ -1,9 +1,9 @@
-from flask import Flask, render_template, redirect, request, url_for, session
+from flask import Flask, render_template, redirect, request, url_for, session, current_app
 from flask_wtf import CSRFProtect
 from config import DevelopmentConfig
 
 from bdd_controller import inicio_sesion
-from carpetas_controller import comprobar_carpetas, mostrar_carpetas
+from carpetas_controller import comprobar_carpetas, mostrar_carpetas, actualizar_info_carpeta
 from archivos_controller import comprobar_archivos, mostrar_archivos
 
 app = Flask(__name__)
@@ -55,16 +55,26 @@ def recover():
 def folder():
     if 'username' in session:
         carpetas = mostrar_carpetas(session['username'], session['password'])
-
         return render_template('folder.html', carpetas=carpetas)
         
     return redirect(url_for('login'))
 
-@app.route("/update_folder")
-def update_info():
-    pass
+@app.route("/update_folder", methods=['POST'])
+def update_info_folder():
+    if 'username' in session:
+        if request.method == 'POST' and 'descripcion' in request.form:
+            print('dsadasdsafsfsada')
+            nombre = request.form['nombre']
+            descripcion = request.form['descripcion']
+            opcion = 'S' if 'opcion' in request.form else 'N'
 
-@app.route("/files", methods=["POST"])
+            actualizar_info_carpeta(session['username'], session['password'], descripcion, opcion, nombre)
+            current_app.logger.info('Hola mundo')
+            return redirect(url_for('folder'))
+
+    return redirect(url_for('login'))
+
+@app.route("/files", methods=['POST'])
 def file():
     if 'username' in session:
         comprobar_archivos(session['username'], session['password'], request.form["nombre"])

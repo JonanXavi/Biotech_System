@@ -101,5 +101,22 @@ def mostrar_carpetas(usuario, contrasena):
     
     return carpetas
 
-def actualizar_info_carpeta():
-    pass
+def actualizar_info_carpeta(usuario, contrasena, descripcion, opcion, nombre):
+    try:
+        print('ASDNNDJNDJDNJNADJDKN')
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("UPDATE CARPETA SET CARDESCRIPCION = %s, CARPRIVADO = %s WHERE CARNOMBRE = %s", (descripcion, opcion, nombre,))
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))

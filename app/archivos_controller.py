@@ -77,11 +77,11 @@ def mostrar_archivos(usuario, contrasena, nombre):
         archivos = []
 
         cursor = connection.cursor()
-        cursor.execute("SELECT ARCHNOMBRE, ARCHDESCRIPCION FROM ARCHIVO WHERE CARNOMBRE = %s", (nombre,))
+        cursor.execute("SELECT ARCHNOMBRE, CARNOMBRE, ARCHDESCRIPCION, ARCHNUMERODESCARGAS, ARCHPUBLICABLE, ARCHCOMPARTIR, ARCHDESCARGA FROM ARCHIVO WHERE CARNOMBRE = %s", (nombre,))
         archivos = cursor.fetchall()
         cursor.close()
         connection.close()
-        print("La conexión ha finalizado.")       
+        print("La conexión ha finalizado.")     
 
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
