@@ -49,6 +49,12 @@
                                                 <a class="medium" href="{{ url_for('recover') }}">¿Has olvidado tu contraseña?</a>
                                                 <button class="btn btn-primary" type="submit">Acceder</button>
                                             </div>
+
+                                            <!-- Button trigger modal -->
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nueva-carpeta">
+                                                Compartir
+                                            </button>
+
                                         </form>
 
                                     </div>
@@ -56,6 +62,38 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="nueva-carpeta" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Nueva Carpeta</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="">
+
+                                    <div class="form-floating mb-3">
+                                        <input class="form-control" id="carpetaNueva" name="carpetaNueva" type="text" placeholder="Nombre de la nueva carpeta"/>
+                                        <label class="form-label fw-bold" for="carpetaNueva">Nombre</label>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Descripción:</label>
+                                        <textarea class="form-control" id="carpetaDescNueva" name="carpetaDescNueva" rows="2"></textarea>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Crear</button>
+                                    </div>
+                                    
+                                </form>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
                 </main>
             </div>
             <div id="layoutAuthentication_footer">

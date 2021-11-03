@@ -35,3 +35,14 @@ function mostrarPassword(){
 		$('#Password').attr('type', $(this).is(':checked') ? 'text' : 'password');
 	});
 });
+
+function noEspacios(){
+    var er = new RegExp(/\s/);
+    var web = document.getElementById('carpetaNueva').value;
+    if(er.test(web)){
+        alert('El nombre no puede tener espacios en blanco');
+        return false;
+    }
+    else
+        return true;
+}

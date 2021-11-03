@@ -10,9 +10,9 @@ def comprobar_carpetas(usuario, contrasena):
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
-        entrada, salida, error = ssh_client.exec_command('ls -d */')
+        entrada, salida, error = ssh_client.exec_command('ls -I Documentos -I Escritorio -I Imágenes -I Plantillas -I Público -I Música -I Vídeos')
         time.sleep(1)
-        lista = salida.read().decode().replace('/\n', ',')
+        lista = salida.read().decode().replace('\n', ',')
         carpetasLinux = lista.split(',')
         carpetasLinux.pop()
         ssh_client.close()
@@ -56,8 +56,14 @@ def comprobar_carpetas(usuario, contrasena):
 
             if len(nuevasCarpetas) != 0:
                 for item in nuevasCarpetas:
-                    path = infoInvestigador[1] + '/' + item
-                    cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (item, ci, grupoPrincipal, '', path))              
+                    if item == 'Descargas':
+                        nombre = item + '_' + usuario
+                        path = infoInvestigador[1] + '/' + item
+                        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (nombre, ci, grupoPrincipal, '', path))
+
+                    else:
+                        path = infoInvestigador[1] + '/' + item
+                        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (item, ci, grupoPrincipal, '', path))              
             else:
                 print('No existen carpetas nuevas')
 
@@ -113,6 +119,76 @@ def actualizar_info_carpeta(usuario, contrasena, descripcion, opcion, nombre):
 
         cursor = connection.cursor()
         cursor.execute("UPDATE CARPETA SET CARDESCRIPCION = %s, CARPRIVADO = %s WHERE CARNOMBRE = %s", (descripcion, opcion, nombre,))
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+def nombre_carpeta(usuario, contrasena, nombre):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT CARNOMBRE FROM CARPETA WHERE CARNOMBRE = %s", (nombre,))
+        carpeta = cursor.fetchone()
+        cursor.close()
+        connection.close()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+    return carpeta
+
+def nueva_carpetaOS(usuario, contrasena, nombre):
+    try:
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        permisos = 'chmod 770 ' + nombre
+        entrada, salida, error = ssh_client.exec_command('mkdir ' + nombre + '\n' + permisos)
+        time.sleep(1)
+        ssh_client.close()
+
+        connectionOS = True
+
+    except paramiko.ssh_exception.AuthenticationException as e:
+        connectionOS = False
+        print('Autenticación Fallida')
+
+    return connectionOS
+
+def nueva_carpetaBDD(usuario, contrasena, nombre, descripcion):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT INVCEDULA, INVPATHHOME FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        info = cursor.fetchone()
+
+        ci = info[0]
+        path = info[1]
+
+        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVCEDULA = %s AND GRPITIPO = 'P'", (ci,))
+        grupo = cursor.fetchone()
+
+        grupoPrincipal = grupo[0]
+        pathCarpeta = path + '/' + nombre
+
+        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (nombre, ci, grupoPrincipal, descripcion, pathCarpeta))
         cursor.close()
         connection.commit()
         connection.close()

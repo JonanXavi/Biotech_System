@@ -15,7 +15,7 @@
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-puce">
             <!-- Navbar Brand-->
-            <a class="navbar-brand ps-3" href="{{ url_for('folder') }}"><img src="{{ url_for('static', filename='img/home/logo3.png') }}"></a>
+            <a class="navbar-brand ps-3"><img src="{{ url_for('static', filename='img/home/logo3.png') }}"></a>
             <!-- Sidebar Toggle-->
             <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
             <!-- Navbar Search-->
@@ -42,6 +42,8 @@
                     <div class="sb-sidenav-menu">
                         <div class="nav">
 
+                            {% if session['usertype'] == 'I' %}
+
                             <div class="sb-sidenav-menu-heading">Navegación</div>
                             <a class="nav-link" href="{{ url_for('folder') }}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-folder"></i></div> 
@@ -53,7 +55,7 @@
                             </a>
 
                             <div class="sb-sidenav-menu-heading">Administración</div>
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="" data-bs-toggle="modal" data-bs-target="#nueva-carpeta">
                                 <div class="sb-nav-link-icon"><i class="fas fa-folder-plus"></i></div> 
                                 Crear Carpeta
                             </a>
@@ -61,6 +63,8 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-upload"></i></div> 
                                 Subir Archivo
                             </a>
+
+                            {% elif session['usertype'] == 'A' %}
 
                             <div class="sb-sidenav-menu-heading">Administrador</div>
                             <a class="nav-link" href="#">
@@ -75,7 +79,7 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-university"></i></div>
                                 Instituciones
                             </a>
-
+                            {% endif %}
                         </div>
                     </div>
                     <div class="sb-sidenav-footer">
@@ -98,6 +102,38 @@
                 </footer>
             </div>
 
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="nueva-carpeta" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Nueva Carpeta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="return noEspacios()" action="{{ url_for('create_folder') }}" method="POST" autocomplete="off">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="carpetaNueva" name="carpetaNueva" type="text" placeholder="Nombre de la nueva carpeta" required/>
+                            <label class="form-label fw-bold" for="carpetaNueva">Nombre</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Descripción:</label>
+                            <textarea class="form-control" id="carpetaDescNueva" name="carpetaDescNueva" rows="2" required></textarea>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Crear</button>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+            </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

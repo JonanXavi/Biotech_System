@@ -12,7 +12,19 @@
 
                 <section class="section">
                     <div class="columns">
+
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                    {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }}">
+                                        {{ message }}
+                                    </div>
+                                    {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
                         <div class="column">
+
                             <table class="table table-hover table-bordered table-responsive">
                                 <thead>
                                     <tr class="table-active">
