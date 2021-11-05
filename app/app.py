@@ -1,10 +1,12 @@
 from flask import Flask, render_template, redirect, request, url_for, session, flash
 from flask_wtf import CSRFProtect
+from werkzeug.utils import secure_filename
 from config import DevelopmentConfig
+import os
 
 from bdd_controller import inicio_sesion, tipo_usuario
 from carpetas_controller import comprobar_carpetas, mostrar_carpetas, actualizar_info_carpeta, nombre_carpeta, nueva_carpetaOS, nueva_carpetaBDD
-from archivos_controller import comprobar_archivos, mostrar_archivos, actualizar_info_archivo, descargar_archivo
+from archivos_controller import comprobar_archivos, mostrar_archivos, actualizar_info_archivo, nombre_archivo, descargar_archivo, subir_archivos
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -118,8 +120,9 @@ def file():
     if 'username' in session:
         comprobar_archivos(session['username'], session['password'], request.form["nombre"])
         archivos = mostrar_archivos(session['username'], session['password'], request.form["nombre"])
+        carpetas = mostrar_carpetas(session['username'], session['password'])
 
-        return render_template('file.html', carpeta=request.form["nombre"], archivos=archivos)
+        return render_template('file.html', carpeta=request.form["nombre"], archivos=archivos, carpetas=carpetas)
         
     return redirect(url_for('login'))
 
@@ -156,9 +159,35 @@ def download_file():
 
     return redirect(url_for('login'))
 
-@app.route("/upload_file")
+@app.route("/upload_file", methods=['GET', 'POST'])
 def upload_file():
-    pass
+    if 'username' in session:
+        if request.method == 'POST':
+            archivoNuevo = request.files['archivo']
+            carpetaUsuario = request.form['carpetasUser']
+            nombreArchivo = nombre_archivo(session['username'], session['password'], archivoNuevo.filename)
+
+            if nombreArchivo:
+                msg = 'Ya existe un archivo con ese nombre en el sistema'
+                flash(msg, "danger")
+
+            else:
+                archivoNuevo.save(os.path.join("temp", secure_filename(archivoNuevo.filename)))
+                temp = os.getcwd()
+                os.chdir(temp + '\\temp') #Windows
+                #os.chdir(temp + '/temp') #Linux
+                temp = os.getcwd()
+                temp = temp + '\\' + archivoNuevo.filename #Windows
+                #temp = temp + '/' + archivoNuevo.filename #Linux
+                subir_archivos(session['username'], session['password'], carpetaUsuario, temp, archivoNuevo.filename)
+                os.remove(temp)
+                os.chdir('..')
+                msg = 'Archivo subido correctamente'
+                flash(msg, "success")
+
+                return redirect(url_for('folder'))
+
+    return redirect(url_for('login'))
 
 if __name__=='__main__':
     csrf.init_app(app)

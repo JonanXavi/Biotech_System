@@ -59,7 +59,8 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-folder-plus"></i></div> 
                                 Crear Carpeta
                             </a>
-                            <a class="nav-link" href="#">
+
+                            <a class="nav-link" href="" data-bs-toggle="modal" data-bs-target="#subir-archivo">
                                 <div class="sb-nav-link-icon"><i class="fas fa-upload"></i></div> 
                                 Subir Archivo
                             </a>
@@ -128,6 +129,42 @@
 
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Crear</button>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="subir-archivo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Subir Archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control-file" id="archivo" name="archivo" type="file" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label fw-bold">Carpetas:</label>
+                            <select class="custom-select custom-select-md mb-3" id="carpetasUser" name="carpetasUser" required>
+                                <option value="">Seleccione una carpeta</option>
+                                {% for carpeta in carpetas %}
+                                <option value="{{carpeta[0]}}">{{carpeta[0]}}</option>
+                                {% endfor %}
+                              </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Enviar</button>
                         </div>
                         
                     </form>

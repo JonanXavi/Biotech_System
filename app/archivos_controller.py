@@ -37,7 +37,7 @@ def comprobar_archivos(usuario, contrasena, nombre):
         lista = salida.read().decode().replace('\n', ',')
         archivosLinux = lista.split(',')
         archivosLinux.pop()
-        ssh_client.close()
+        sftp = ssh_client.open_sftp()
 
         nuevosArchivos = []
 
@@ -53,10 +53,13 @@ def comprobar_archivos(usuario, contrasena, nombre):
         if len(nuevosArchivos) != 0:
             for item in nuevosArchivos:
                 pathArchivo = path + '/' + nombre + '/' + item
+                sftp.chmod(pathArchivo, 0o770)
                 cursor.execute('INSERT INTO ARCHIVO VALUES (%s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, DEFAULT)', (item, nombre, '', pathArchivo))              
         else:
             print('No existen archivos nuevos')
 
+        sftp.close()
+        ssh_client.close()
         cursor.close()
         connection.commit()
         connection.close()
@@ -160,8 +163,54 @@ def descargar_archivo(usuario, contrasena, nombre):
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
 
-def subir_archivos():
-    pass
+def nombre_archivo(usuario, contrasena, nombre):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT ARCHNOMBRE FROM ARCHIVO WHERE ARCHNOMBRE = %s", (nombre,))
+        archivo = cursor.fetchone()
+        cursor.close()
+        connection.close()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+    return archivo
+
+def subir_archivos(usuario, contrasena, carpeta, archivo, nombreArchivo):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT CARPATH FROM CARPETA WHERE CARNOMBRE = %s", (carpeta,))
+        rutaCarpeta = cursor.fetchone()
+        cursor.close()
+        connection.close()
+
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        sftp = ssh_client.open_sftp()
+        sftp.chdir(rutaCarpeta[0])
+        sftp.put(archivo, nombreArchivo)
+        sftp.close()
+        ssh_client.close()
+
+    except paramiko.ssh_exception.AuthenticationException as e:
+        print('Autenticación Fallida')
 
 def compartir_archivo():
     pass

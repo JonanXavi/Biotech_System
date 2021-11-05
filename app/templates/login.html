@@ -51,8 +51,8 @@
                                             </div>
 
                                             <!-- Button trigger modal -->
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nueva-carpeta">
-                                                Compartir
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#compartir-archivo">
+                                                Modal
                                             </button>
 
                                         </form>
@@ -64,28 +64,32 @@
                     </div>
 
                     <!-- Modal -->
-                    <div class="modal fade" id="nueva-carpeta" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal fade" id="compartir-archivo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Nueva Carpeta</h5>
+                            <h5 class="modal-title" id="exampleModalLabel">Compartir Archivo</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="">
+                                <form action="" enctype="multipart/form-data">
 
                                     <div class="form-floating mb-3">
-                                        <input class="form-control" id="carpetaNueva" name="carpetaNueva" type="text" placeholder="Nombre de la nueva carpeta"/>
-                                        <label class="form-label fw-bold" for="carpetaNueva">Nombre</label>
+                                        <input class="form-control-file" id="archivo" name="archivo" type="file" required>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Descripción:</label>
-                                        <textarea class="form-control" id="carpetaDescNueva" name="carpetaDescNueva" rows="2"></textarea>
+                                    <div class="form-group">
+                                        <label class="form-label fw-bold">Seleccione una Carpeta:</label>
+                                        <select class="custom-select custom-select-md mb-3" id="carpetasUser" name="carpetasUser" required>
+                                            <option value="">Carpetas del Usuario</option>
+                                            <option value="1">One</option>
+                                            <option value="2">Two</option>
+                                            <option value="3">Three</option>
+                                          </select>
                                     </div>
 
                                     <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Crear</button>
+                                        <button type="submit" class="btn btn-primary">Enviar</button>
                                     </div>
                                     
                                 </form>
