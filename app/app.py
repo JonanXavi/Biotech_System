@@ -4,9 +4,10 @@ from werkzeug.utils import secure_filename
 from config import DevelopmentConfig
 import os
 
-from bdd_controller import inicio_sesion, tipo_usuario
+from bdd_controller import inicio_sesion
+from investigador_controller import tipo_usuario, info_investigadores, info_grupos
 from carpetas_controller import comprobar_carpetas, mostrar_carpetas, actualizar_info_carpeta, nombre_carpeta, nueva_carpetaOS, nueva_carpetaBDD
-from archivos_controller import comprobar_archivos, mostrar_archivos, actualizar_info_archivo, nombre_archivo, descargar_archivo, subir_archivos
+from archivos_controller import comprobar_archivos, mostrar_archivos, actualizar_info_archivo, nombre_archivo, descargar_archivo, subir_archivos, nombre_archivo_compartido, compartir_archivo, archivos_compartidos
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -26,9 +27,9 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        connection = inicio_sesion(username, password)
+        conexion = inicio_sesion(username, password)
 
-        if connection is not None:
+        if conexion == True:
             session['username'] = username
             session['password'] = password
 
@@ -42,7 +43,7 @@ def login():
             elif session['usertype'] == 'A':
                 return redirect(url_for('folder')) #Cambiar a direccion de Admin
 
-        else:
+        elif conexion == False:
             msg = 'Usuario o contraseña incorrecto'
             
     elif 'username' in session and session['usertype'] == 'I':
@@ -121,8 +122,9 @@ def file():
         comprobar_archivos(session['username'], session['password'], request.form["nombre"])
         archivos = mostrar_archivos(session['username'], session['password'], request.form["nombre"])
         carpetas = mostrar_carpetas(session['username'], session['password'])
+        investigadores = info_investigadores(session['username'], session['password'])
 
-        return render_template('file.html', carpeta=request.form["nombre"], archivos=archivos, carpetas=carpetas)
+        return render_template('file.html', carpeta=request.form["nombre"], archivos=archivos, carpetas=carpetas, investigadores=investigadores)
         
     return redirect(url_for('login'))
 
@@ -133,10 +135,9 @@ def update_info_file():
             nombre = request.form['nombreArchivo']
             descripcion = request.form['descripcion-archivo']
             publicable = 'S' if 'publicable' in request.form else 'N'
-            compartir = 'S' if 'compartir' in request.form else 'N'
             descarga = 'S' if 'op-descarga' in request.form else 'N'
 
-            actualizar_info_archivo(session['username'], session['password'], descripcion, publicable, compartir, descarga, nombre)
+            actualizar_info_archivo(session['username'], session['password'], descripcion, publicable, descarga, nombre)
             return redirect(url_for('folder'))
 
     return redirect(url_for('login'))
@@ -188,6 +189,48 @@ def upload_file():
                 return redirect(url_for('folder'))
 
     return redirect(url_for('login'))
+
+@app.route("/share", methods=['POST'])
+def share():
+    if 'username' in session:
+        if request.method == 'POST':
+            usuarioCI = request.form['investigadoresId']
+            nombreArchivo = request.form['nombreArchivoC']
+
+            compartir = info_grupos(session['username'], session['password'], usuarioCI)
+            
+            if compartir == True:
+                archivoC = nombre_archivo_compartido(session['username'], session['password'], nombreArchivo)
+
+                if archivoC:
+                    msg = 'Este archivo ya fue compartido con el investigador'
+                    flash(msg, "warning")
+
+                else:
+                    compartir_archivo(session['username'], session['password'], usuarioCI, nombreArchivo)
+                    msg = 'Archivo compartido correctamente'
+                    flash(msg, "success")
+                    return redirect(url_for('folder'))
+
+            elif compartir == False:
+                msg = 'El investigador no pertence a su grupo de trabajo, motivo por el cual no se puede compartir el archivo'
+                flash(msg, "danger")
+                return redirect(url_for('folder'))
+
+    return redirect(url_for('login'))
+
+@app.route("/share_files")
+def share_files():
+    if 'username' in session:
+        archivos = archivos_compartidos(session['username'], session['password'])
+
+        return render_template('share.html', archivos=archivos)
+        
+    return redirect(url_for('login'))
+
+@app.route("/profile")
+def profile():
+    return render_template('profile.html')
 
 if __name__=='__main__':
     csrf.init_app(app)

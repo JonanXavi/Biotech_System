@@ -5,7 +5,18 @@
 {% block content %}
 <main>
     <div class="container-fluid px-4">
-        <h1 class="mt-4">Carpetas del Usuario</h1>
+        <h1 class="mt-2">Carpetas del Usuario</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         <div class="card mb-4">
             <div class="card-body">
@@ -13,19 +24,9 @@
                 <section class="section">
                     <div class="columns">
 
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                    {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }}">
-                                        {{ message }}
-                                    </div>
-                                    {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-
                         <div class="column">
 
-                            <table class="table table-hover table-bordered table-responsive">
+                            <table id="tablaCarpetas" class="table table-hover table-bordered table-responsive" style="width:100%">
                                 <thead>
                                     <tr class="table-active">
                                         <th class="col-2 text-center">Nombre de la Carpeta</th>
@@ -58,6 +59,7 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </section>
@@ -70,7 +72,7 @@
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title">Nombre Carpeta</h5>
+                <h5 class="modal-title">Editar Permisos</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -78,7 +80,10 @@
                     <form action="{{ url_for('update_info_folder') }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
-                        <input type="hidden" name="nombreCarpeta" id="nombreCarpeta">
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="nombreCarpeta" name="nombreCarpeta" type="text" placeholder="Nombre de la carpeta" readonly/>
+                            <label class="form-label fw-bold" for="nombreCarpeta">Carpeta</label>
+                        </div>
 
                         <div class="form-floating mb-3">
                             <input class="form-control" id="grupo" name="grupo" type="text" placeholder="Grupo al que pertenece" readonly/>
@@ -110,4 +115,5 @@
 
 </main>
 <script src="{{ url_for('static', filename='js/admin/editcarpeta.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin/datatables.js') }}"></script>
 {% endblock %}

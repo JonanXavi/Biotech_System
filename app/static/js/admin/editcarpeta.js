@@ -8,13 +8,11 @@ carpetaModal.addEventListener('show.bs.modal', function (event) {
   var descripcionCarpeta = button.getAttribute('data-bs-carpeta_desc')
   var Privado = button.getAttribute('data-bs-carpeta_priv')
 
-  var modalTitulo = document.querySelector('.modal-title')
   var modalCarpeta = document.querySelector('#nombreCarpeta')
   var modalGrupo = document.querySelector('#grupo')
   var modalBodyInput = document.querySelector('#descripcion-carpeta')
   var modalBodyInput1 = document.querySelector('#opcion')
 
-  modalTitulo.textContent = nombreCarpeta
   modalCarpeta.value = nombreCarpeta
   modalGrupo.value = grupoCarperta
   modalBodyInput.value = descripcionCarpeta

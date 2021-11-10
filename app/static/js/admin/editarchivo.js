@@ -8,19 +8,15 @@ archivoModal.addEventListener('show.bs.modal', function (event) {
   var descripcionArchivo = button.getAttribute('data-bs-archivo_desc')
   var DescargasArchivo = button.getAttribute('data-bs-num_descargas')
   var publicable = button.getAttribute('data-bs-archivo_pub')
-  var compartir = button.getAttribute('data-bs-archivo_comp')
   var descargar = button.getAttribute('data-bs-archivo_descarga')
 
-  var modalTituloArch = document.querySelector('.modal-title')
   var modalArchivo = document.querySelector('#nombreArchivo')
   var modalCarpeta = document.querySelector('#carpeta')
   var modalDescArchivo = document.querySelector('#descripcion-archivo')
   var modalDescargas = document.querySelector('#descargas')
   var modalPublicable = document.querySelector('#publicable')
-  var modalCompartir = document.querySelector('#compartir')
   var modalDescarga = document.querySelector('#op-descarga')
 
-  modalTituloArch.textContent = nombreArchivo
   modalArchivo.value = nombreArchivo
   modalCarpeta.value = carpetaArchivo
   modalDescArchivo.value = descripcionArchivo
@@ -31,13 +27,6 @@ archivoModal.addEventListener('show.bs.modal', function (event) {
   }
   else if(publicable === 'N'){
     modalPublicable.checked=false
-  }
-
-  if(compartir === 'S'){
-    modalCompartir.checked=true
-  }
-  else if(compartir === 'N'){
-    modalCompartir.checked=false
   }
 
   if(descargar === 'S'){

@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 
 HOST='192.168.100.150'
+#HOST='172.16.0.63'
 
 def inicio_sesion(usuario, contrasena):
 
@@ -13,14 +14,14 @@ def inicio_sesion(usuario, contrasena):
             password=contrasena,
             db='biologia'
         )
-        
+        conexion = True
         connection.close() 
 
     except Error as ex:
-        connection = None
+        conexion = False
         print("Error durante la conexión: {}".format(ex))
 
-    return connection
+    return conexion
 
 def tipo_usuario(usuario, contrasena):
     try:
@@ -37,7 +38,6 @@ def tipo_usuario(usuario, contrasena):
         tipoUsuario = cursor.fetchone()
         cursor.close()
         connection.close()
-        print("La conexión ha finalizado.")   
 
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))

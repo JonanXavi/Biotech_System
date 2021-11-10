@@ -7,6 +7,7 @@ import time
 import os
 
 HOST='192.168.100.150'
+#HOST='172.16.0.63'
 
 def comprobar_archivos(usuario, contrasena, nombre):
     try:
@@ -54,7 +55,7 @@ def comprobar_archivos(usuario, contrasena, nombre):
             for item in nuevosArchivos:
                 pathArchivo = path + '/' + nombre + '/' + item
                 sftp.chmod(pathArchivo, 0o770)
-                cursor.execute('INSERT INTO ARCHIVO VALUES (%s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, DEFAULT)', (item, nombre, '', pathArchivo))              
+                cursor.execute('INSERT INTO ARCHIVO VALUES (%s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT)', (item, nombre, '', pathArchivo))              
         else:
             print('No existen archivos nuevos')
 
@@ -83,7 +84,7 @@ def mostrar_archivos(usuario, contrasena, nombre):
         archivos = []
 
         cursor = connection.cursor()
-        cursor.execute("SELECT ARCHNOMBRE, CARNOMBRE, ARCHDESCRIPCION, ARCHNUMERODESCARGAS, ARCHPUBLICABLE, ARCHCOMPARTIR, ARCHDESCARGA FROM ARCHIVO WHERE CARNOMBRE = %s", (nombre,))
+        cursor.execute("SELECT ARCHNOMBRE, CARNOMBRE, ARCHDESCRIPCION, ARCHNUMERODESCARGAS, ARCHPUBLICABLE, ARCHDESCARGA FROM ARCHIVO WHERE CARNOMBRE = %s", (nombre,))
         archivos = cursor.fetchall()
         cursor.close()
         connection.close()
@@ -94,7 +95,7 @@ def mostrar_archivos(usuario, contrasena, nombre):
     
     return archivos
 
-def actualizar_info_archivo(usuario, contrasena, descripcion, publicable, compartir, descarga, nombre):
+def actualizar_info_archivo(usuario, contrasena, descripcion, publicable, descarga, nombre):
     try:
         connection = mysql.connector.connect(
             host=HOST,
@@ -105,7 +106,7 @@ def actualizar_info_archivo(usuario, contrasena, descripcion, publicable, compar
         )
 
         cursor = connection.cursor()
-        cursor.execute("UPDATE ARCHIVO SET ARCHDESCRIPCION = %s, ARCHPUBLICABLE = %s, ARCHCOMPARTIR = %s, ARCHDESCARGA = %s WHERE ARCHNOMBRE = %s", (descripcion, publicable, compartir, descarga, nombre,))
+        cursor.execute("UPDATE ARCHIVO SET ARCHDESCRIPCION = %s, ARCHPUBLICABLE = %s, ARCHDESCARGA = %s WHERE ARCHNOMBRE = %s", (descripcion, publicable, descarga, nombre,))
         cursor.close()
         connection.commit()
         connection.close()
@@ -212,5 +213,73 @@ def subir_archivos(usuario, contrasena, carpeta, archivo, nombreArchivo):
     except paramiko.ssh_exception.AuthenticationException as e:
         print('Autenticación Fallida')
 
-def compartir_archivo():
-    pass
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+def nombre_archivo_compartido(usuario, contrasena, nombre):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM ARCHIVOS_COMPARTIDOS WHERE ARCHNOMBRE = %s", (nombre,))
+        archivoC = cursor.fetchone()
+        cursor.close()
+        connection.close()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+    return archivoC
+
+def compartir_archivo(usuario, contrasena, ci, nombre):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        cursor = connection.cursor()
+        cursor.execute('INSERT INTO ARCHIVOS_COMPARTIDOS VALUES (%s, %s)', (ci, nombre))
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+def archivos_compartidos(usuario, contrasena):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+        
+        archivos = []
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT INVCEDULA FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        ci = cursor.fetchone()
+
+        cursor.execute("SELECT ARCHNOMBRE FROM ARCHIVOS_COMPARTIDOS WHERE INVCEDULA = %s ", (ci[0],))
+        archivos = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+        print("La conexión ha finalizado.")     
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+    
+    return archivos

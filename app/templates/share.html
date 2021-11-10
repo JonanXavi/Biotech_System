@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+
+{% block title %}Biotech Archivo_Compartidos{% endblock %}
+
+{% block content %}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-2">Archivos Compartidos</h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <section class="section">
+                    <div class="columns">
+
+                        <div class="column">
+
+                            <table id="tablaArchivos" class="table table-hover table-bordered table-responsive" style="width:100%">
+                                <thead>
+                                    <tr class="table-active">
+                                        <th class="col-6 text-center">Nombre del Archivo</th>
+                                        <th class="col-lg-2 text-center">Opciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for archivo in archivos %}
+                                    <tr>
+                                        <td>{{archivo[0]}}</td>
+
+                                        <form action="{{ url_for('download_file') }}" method="POST">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                                            <input type="hidden" name="nameArchivo" value="{{ archivo[0] }}">
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm">Descargar</button>
+                                            </td>
+                                        </form>
+                                        
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                
+                            </table>
+
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/admin/datatables.js') }}"></script>
+</main>
+
+{% endblock %}

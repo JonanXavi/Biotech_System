@@ -455,6 +455,10 @@ progress {
   display: none !important;
 }
 
+div.dataTables_wrapper div.dataTables_filter {
+  text-align: left !important;
+}
+
 .lead {
   font-size: 1.25rem;
   font-weight: 300;

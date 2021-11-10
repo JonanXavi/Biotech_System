@@ -5,7 +5,7 @@
 {% block content %}
 <main>
     <div class="container-fluid px-4">
-        <h1 class="mt-4">Carpeta: {{carpeta}}</h1>
+        <h1 class="mt-2">Carpeta: {{carpeta}}</h1>
 
         <div class="card mb-4">
             <div class="card-body">
@@ -13,13 +13,13 @@
                 <section class="section">
                     <div class="columns">
                         <div class="column">
-                            <table class="table table-hover table-bordered table-responsive">
+                            <table id="tablaArchivos" class="table table-hover table-bordered table-responsive" style="width:100%">
                                 <thead>
                                     <tr class="table-active">
                                         <th class="col-2 text-center">Nombre del Archivo</th>
                                         <th class="col-lg-7 text-center">Descripción</th>
                                         <th class="col-lg-1 text-center">Permisos</th>
-                                        <th colspan="2" class="col-lg-2 text-center">Opciones</th>
+                                        <th class="col-lg-2 text-center">Opciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -30,25 +30,34 @@
                                         <td>{{archivo[2]}}</td>
                                         <input type="hidden" name="numdescargas" value="{{archivo[3]}}"/>
                                         <input type="hidden" name="publicar" value="{{archivo[4]}}"/>
-                                        <input type="hidden" name="compartir" value="{{archivo[5]}}"/>
-                                        <input type="hidden" name="descargar" value="{{archivo[6]}}"/>
+                                        <input type="hidden" name="descargar" value="{{archivo[5]}}"/>
+
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-archivo_nombre="{{ archivo[0] }}" data-bs-archivo_carpeta="{{ archivo[1] }}" data-bs-archivo_desc="{{ archivo[2] }}" data-bs-num_descargas="{{ archivo[3] }}" data-bs-archivo_pub="{{ archivo[4] }}" data-bs-archivo_comp="{{ archivo[5] }}" data-bs-archivo_descarga="{{ archivo[6] }}" data-bs-target="#archivo-editar">
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-archivo_nombre="{{ archivo[0] }}" data-bs-archivo_carpeta="{{ archivo[1] }}" data-bs-archivo_desc="{{ archivo[2] }}" data-bs-num_descargas="{{ archivo[3] }}" data-bs-archivo_pub="{{ archivo[4] }}" data-bs-archivo_descarga="{{ archivo[5] }}" data-bs-target="#archivo-editar">
                                             Editar
                                             </button>
                                         </td>
+
                                         <td class="text-center">
-                                            <a class="btn btn-info btn-sm" href="#">Compartir</a>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-archivo_nombreC="{{ archivo[0] }}" data-bs-target="#compartir-archivo">
+                                                    Compartir
+                                                </button>
+                                                
+                                                
+                                            </div>
+                                            <div class="btn-group">
+                                                <form action="{{ url_for('download_file') }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        
+                                                    <input type="hidden" name="nameArchivo" value="{{ archivo[0] }}">
+                                                    
+                                                        <button class="btn btn-success btn-sm">Descargar</button>
+                                                    
+                                                </form>
+                                            </div>
                                         </td>
 
-                                        <form action="{{ url_for('download_file') }}" method="POST">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-
-                                            <input type="hidden" name="nameArchivo" value="{{ archivo[0] }}">
-                                            <td class="text-center">
-                                                <button class="btn btn-success btn-sm">Descargar</button>
-                                            </td>
-                                        </form>
                                         
                                     </tr>
                                     {% endfor %}
@@ -66,7 +75,7 @@
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title">Nombre Archivo</h5>
+                <h5 class="modal-title">Editar Permisos</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -74,7 +83,10 @@
                     <form action="{{ url_for('update_info_file') }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
-                        <input type="hidden" name="nombreArchivo" id="nombreArchivo">
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="nombreArchivo" name="nombreArchivo" type="text" placeholder="Nombre del archivo" readonly/>
+                            <label class="form-label fw-bold" for="nombreArchivo">Archivo</label>
+                        </div>
 
                         <div class="form-floating mb-3">
                             <input class="form-control" id="carpeta" name="carpeta" type="text" placeholder="Carpeta del archivo" readonly/>
@@ -100,13 +112,6 @@
 
                         <div class="col-md-12 d-flex justify-content-center">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="compartir" name="compartir" checked>
-                                <label class="form-check-label" for="flexSwitchCheckChecked">Compartir Archivo</label>
-                              </div>
-                        </div>
-
-                        <div class="col-md-12 d-flex justify-content-center">
-                            <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch" id="op-descarga" name="op-descarga" checked>
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Habilitar Descarga</label>
                               </div>
@@ -122,6 +127,49 @@
             </div>
             </div>
         </div>
+        <script src="{{ url_for('static', filename='js/admin/editarchivo.js') }}"></script>
+
+        <!-- Modal -->
+        <div class="modal fade" id="compartir-archivo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title">Compartir Archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form action="{{ url_for('share') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="nombreArchivoC" name="nombreArchivoC" type="text" placeholder="Nombre del archivo" readonly/>
+                            <label class="form-label fw-bold" for="nombreArchivoC">Archivo</label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label fw-bold">Investigadores:</label>
+                            <div>
+                                <select class="form-select form-select-md mb-3" id="investigadoresId" name="investigadoresId" required>
+                                    <option value="">Seleccione un investigador</option>
+                                    {% for investigador in investigadores %}
+                                    <option value="{{investigador[0]}}">{{investigador[1]}} {{investigador[2]}}</option>
+                                    {% endfor %}
+                                  </select>
+                            </div>
+                           
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Compartir</button>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+            </div>
+        </div>
+        <script src="{{ url_for('static', filename='js/admin/infoarchivo.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/admin/datatables.js') }}"></script>
 </main>
-<script src="{{ url_for('static', filename='js/admin/editarchivo.js') }}"></script>
 {% endblock %}
