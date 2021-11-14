@@ -16,44 +16,36 @@
                             <table id="tablaArchivos" class="table table-hover table-bordered table-responsive" style="width:100%">
                                 <thead>
                                     <tr class="table-active">
-                                        <th class="col-2 text-center">Nombre del Archivo</th>
-                                        <th class="col-lg-7 text-center">Descripción</th>
-                                        <th class="col-lg-1 text-center">Permisos</th>
-                                        <th class="col-lg-2 text-center">Opciones</th>
+                                        <th class="col-2 text-center align-middle">Nombre del Archivo</th>
+                                        <th class="col-lg-7 text-center align-middle">Descripción</th>
+                                        <th class="col-lg-1 text-center align-middle">Permisos</th>
+                                        <th class="col-lg-2 text-center align-middle">Opciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for archivo in archivos %}
                                     <tr>
-                                        <td>{{archivo[0]}}</td>
+                                        <td class="align-middle">{{archivo[0]}}</td>
                                         <input type="hidden" name="carpeta_arch" value="{{archivo[1]}}"/>
-                                        <td>{{archivo[2]}}</td>
+                                        <td class="align-middle">{{archivo[2]}}</td>
                                         <input type="hidden" name="numdescargas" value="{{archivo[3]}}"/>
                                         <input type="hidden" name="publicar" value="{{archivo[4]}}"/>
                                         <input type="hidden" name="descargar" value="{{archivo[5]}}"/>
 
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-archivo_nombre="{{ archivo[0] }}" data-bs-archivo_carpeta="{{ archivo[1] }}" data-bs-archivo_desc="{{ archivo[2] }}" data-bs-num_descargas="{{ archivo[3] }}" data-bs-archivo_pub="{{ archivo[4] }}" data-bs-archivo_descarga="{{ archivo[5] }}" data-bs-target="#archivo-editar">
-                                            Editar
-                                            </button>
+                                        <td class="text-center align-middle">
+                                            <button type="submit" class="btn btn-link"><a title="Editar"><i class="fas fa-edit fa-lg" style="color:#212529" data-bs-toggle="modal" data-bs-archivo_nombre="{{ archivo[0] }}" data-bs-archivo_carpeta="{{ archivo[1] }}" data-bs-archivo_desc="{{ archivo[2] }}" data-bs-num_descargas="{{ archivo[3] }}" data-bs-archivo_pub="{{ archivo[4] }}" data-bs-archivo_descarga="{{ archivo[5] }}" data-bs-target="#archivo-editar"></i></a></button>
                                         </td>
 
-                                        <td class="text-center">
+                                        <td class="text-center align-middle">
                                             <div class="btn-group">
-                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-archivo_nombreC="{{ archivo[0] }}" data-bs-target="#compartir-archivo">
-                                                    Compartir
-                                                </button>
-                                                
-                                                
+                                                <button type="submit" class="btn btn-link"><a title="Compartir"><i class="fas fa-share-square fa-lg" style="color:#212529" data-bs-toggle="modal" data-bs-archivo_nombreC="{{ archivo[0] }}" data-bs-target="#compartir-archivo"></i></a></button>                                                
                                             </div>
                                             <div class="btn-group">
                                                 <form action="{{ url_for('download_file') }}" method="POST">
                                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         
                                                     <input type="hidden" name="nameArchivo" value="{{ archivo[0] }}">
-                                                    
-                                                        <button class="btn btn-success btn-sm">Descargar</button>
-                                                    
+                                                    <button type="submit" class="btn btn-link"><a title="Descargar"><i class="fas fa-download fa-lg" style="color:#212529"></i></button>                                                   
                                                 </form>
                                             </div>
                                         </td>
@@ -155,7 +147,7 @@
                                     {% for investigador in investigadores %}
                                     <option value="{{investigador[0]}}">{{investigador[1]}} {{investigador[2]}}</option>
                                     {% endfor %}
-                                  </select>
+                                </select>
                             </div>
                            
                         </div>

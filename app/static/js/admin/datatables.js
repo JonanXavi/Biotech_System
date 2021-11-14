@@ -1,9 +1,8 @@
 $(document).ready(function() {
     $('table').each(function(){
         $(this).DataTable({
-            "dom": "<'row'<'col-sm-12 col-md-6 flex-d align-items-start'f>>" +
-            "<'row'<'col-sm-12'tr>>" +
-            "<'row'<'col-sm-12 col-md-7'p>>",
+            "dom":"<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-12 col-md-6 flex-d align-items-start'f><'col-sm-12 col-md-6 flex-d align-items-end'p>>",
             "iDisplayLength":5,
             "lengthChange": false,
             "ordering": false,

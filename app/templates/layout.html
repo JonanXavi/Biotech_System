@@ -18,7 +18,7 @@
             <!-- Navbar Brand-->
             <a class="navbar-brand ps-3"><img src="{{ url_for('static', filename='img/home/logo3.png') }}"></a>
             <!-- Sidebar Toggle-->
-            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars fa-lg"></i></button>
             <!-- Navbar Search-->
             <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
                 <div class="input-group">
@@ -27,9 +27,9 @@
             <!-- Navbar-->
             <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-lg"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#!">Perfil</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}">Perfil</a></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li><a class="dropdown-item" href="{{ url_for('logout') }}">Salir</a></li>
                     </ul>
@@ -55,22 +55,12 @@
                                 Archivos Compartidos
                             </a>
 
-                            <div class="sb-sidenav-menu-heading">Administración</div>
-                            <a class="nav-link" href="" data-bs-toggle="modal" data-bs-target="#nueva-carpeta">
-                                <div class="sb-nav-link-icon"><i class="fas fa-folder-plus"></i></div> 
-                                Crear Carpeta
-                            </a>
-
-                            <a class="nav-link" href="" data-bs-toggle="modal" data-bs-target="#subir-archivo">
-                                <div class="sb-nav-link-icon"><i class="fas fa-upload"></i></div> 
-                                Subir Archivo
-                            </a>
-
                             {% elif session['usertype'] == 'A' %}
 
                             <div class="sb-sidenav-menu-heading">Administrador</div>
-                            <a class="nav-link" href="#">
-                                <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
+
+                            <a class="nav-link" href="{{ url_for('users') }}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-user-tie"></i></div>
                                 Usuarios
                             </a>
                             <a class="nav-link" href="#">

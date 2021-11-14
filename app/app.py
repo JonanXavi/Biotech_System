@@ -5,9 +5,10 @@ from config import DevelopmentConfig
 import os
 
 from bdd_controller import inicio_sesion
-from investigador_controller import tipo_usuario, info_investigadores, info_grupos
+from investigador_controller import tipo_usuario, info_investigadores, info_grupos, perfil_investigador, actualizar_perfil
 from carpetas_controller import comprobar_carpetas, mostrar_carpetas, actualizar_info_carpeta, nombre_carpeta, nueva_carpetaOS, nueva_carpetaBDD
 from archivos_controller import comprobar_archivos, mostrar_archivos, actualizar_info_archivo, nombre_archivo, descargar_archivo, subir_archivos, nombre_archivo_compartido, compartir_archivo, archivos_compartidos
+from usuarios_controller import info_usuarios, comprobar_usuario, ingresar_usuarioBDD, registrar_usuarioBDD
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -41,7 +42,7 @@ def login():
                 return redirect(url_for('folder'))
 
             elif session['usertype'] == 'A':
-                return redirect(url_for('folder')) #Cambiar a direccion de Admin
+                return redirect(url_for('users'))
 
         elif conexion == False:
             msg = 'Usuario o contraseña incorrecto'
@@ -50,7 +51,7 @@ def login():
         return redirect(url_for('folder'))
         
     elif 'username' in session and session['usertype'] == 'A':
-        return redirect(url_for('folder')) #Cambiar a direccion de Admin
+        return redirect(url_for('users')) #Cambiar a direccion de Admin
 
     return render_template('login.html', msg=msg)
 
@@ -108,6 +109,8 @@ def create_folder():
 
                 if connectionOS == True:
                     nueva_carpetaBDD(session['username'], session['password'], nombre, descripcion)
+                    msg = 'Carpeta creada correctamente'
+                    flash(msg, "success")
                     return redirect(url_for('folder'))
                 else:
                     msg = 'Ocurrio un error durante el registro'
@@ -230,7 +233,75 @@ def share_files():
 
 @app.route("/profile")
 def profile():
-    return render_template('profile.html')
+    if 'username' in session:
+        infoPerfil = perfil_investigador(session['username'], session['password'])
+
+        return render_template('profile.html', infoPerfil=infoPerfil)
+
+    return redirect(url_for('login'))
+
+@app.route("/update_profile", methods=['POST'])
+def update_profile():
+    if 'username' in session:
+        url = request.form['urlSearch']
+        bio = request.form['biografia']
+        actualizar_perfil(session['username'], session['password'], url, bio)
+        msg = 'Información actualizada'
+        flash(msg, "success")
+
+        return redirect(url_for('profile'))
+
+    return redirect(url_for('login'))
+
+@app.route("/users")
+def users():
+    if 'username' in session and session['usertype'] == 'A':
+        investigadores = info_usuarios(session['username'], session['password'])
+        return render_template('user.html', investigadores=investigadores)
+        
+    return redirect(url_for('login'))
+
+@app.route("/add_user")
+def add_user():
+    if 'username' in session and session['usertype'] == 'A':
+        return render_template('add-user.html')
+
+    return redirect(url_for('login'))
+
+@app.route("/register_user", methods=['POST'])
+def register_user():
+    if 'username' in session and session['usertype'] == 'A':
+        if request.method == 'POST':
+            nombre = request.form['nombre']
+            apellido = request.form['apellido']
+            ci = request.form['ci']
+            instituto = request.form['instituto']
+            correo = request.form['correo']
+            user = request.form['user']
+            contrasena = request.form['contrasena']
+
+            investigador = comprobar_usuario(session['username'], session['password'], ci)
+
+            if investigador:
+                msg = 'Ya existe un usuario con esas credenciales en el sistema'
+                flash(msg, "danger")
+                return redirect(url_for('users'))
+
+            else:            
+                conexion = ingresar_usuarioBDD(session['username'], session['password'], user, contrasena)
+
+                if conexion == True:
+                    registrar_usuarioBDD(session['username'], session['password'], ci, instituto, user, nombre, apellido, correo)
+                    msg = 'Usuario creado en el sistema'
+                    flash(msg, "success")
+                    return redirect(url_for('users'))
+
+                elif conexion == False:
+                    msg = 'Ocurrio un error al ingresar un nuevo usuario'
+                    flash(msg, "danger")
+                    return redirect(url_for('users'))
+
+    return redirect(url_for('login'))
 
 if __name__=='__main__':
     csrf.init_app(app)

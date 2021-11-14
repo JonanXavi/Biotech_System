@@ -1,0 +1,62 @@
+{% extends 'layout.html' %}
+
+{% block title %}Biotech Admin{% endblock %}
+
+{% block content %}
+
+<main>
+
+    <div class="container-fluid px-4">
+        <h1 class="mt-2">Información Usuarios</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <section class="section">
+                    <div class="columns">
+
+                        <div class="column">
+
+                            <table id="" class="table table-hover table-bordered table-responsive" style="width:100%">
+                                <div class="d-flex justify-content-end">
+                                    <a class="nav-link" href="{{ url_for('add_user') }}" title="Agregar Usuario"><i class="fas fa-user-plus fa-lg" style="color:#212529"></i></a>
+                                </div>
+                                <thead>
+                                    <tr class="table-active">
+                                        <th class="col-3 text-center">Investigador</th>
+                                        <th class="col-lg-5 text-center">Institución</th>
+                                        <th class="col-lg-4 text-center">Correo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for investigador in investigadores %}
+                                    <tr>
+                                        <td>{{investigador[1]}} {{investigador[2]}}</td>
+                                        <td>{{investigador[0]}}</td>
+                                        <td>{{investigador[3]}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</main>
+<script src="{{ url_for('static', filename='js/admin/datatables.js') }}"></script>
+{% endblock %}

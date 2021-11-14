@@ -6,7 +6,7 @@ import paramiko
 import time
 import os
 
-HOST='192.168.100.150'
+HOST='192.168.100.156'
 #HOST='172.16.0.63'
 
 def comprobar_archivos(usuario, contrasena, nombre):
@@ -141,6 +141,8 @@ def descargar_archivo(usuario, contrasena, nombre):
                 if os.name == 'nt':
                     pathDescarga = str(Path.home()) + '\\' + 'Downloads' + '\\' + infoArchivo[0]
                     sftp.get(infoArchivo[1], pathDescarga)
+                    print(pathDescarga)
+                    print(infoArchivo[1])
 
                 else:
                     pathDescarga = str(Path.home()) + '/' + 'Descargas'

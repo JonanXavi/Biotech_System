@@ -27,32 +27,38 @@
                         <div class="column">
 
                             <table id="tablaCarpetas" class="table table-hover table-bordered table-responsive" style="width:100%">
+                                <div class="d-flex justify-content-end">
+                                    <a class="nav-link" title="Crear Carpeta" data-bs-toggle="modal" data-bs-target="#nueva-carpeta">
+                                        <i class="fas fa-folder-plus fa-lg" style="color:#212529"></i>
+                                    </a>
+                                    <a class="nav-link" title="Subir Archivo" data-bs-toggle="modal" data-bs-target="#subir-archivo">
+                                        <i class="fas fa-upload fa-lg" style="color:#212529"></i>
+                                    </a>
+                                </div>
                                 <thead>
                                     <tr class="table-active">
-                                        <th class="col-2 text-center">Nombre de la Carpeta</th>
-                                        <th class="col-lg-8 text-center">Descripción</th>
-                                        <th class="col-lg-1 text-center">Permisos</th>
-                                        <th class="col-lg-1 text-center">Opciones</th>
+                                        <th class="col-2 text-center align-middle">Nombre de la Carpeta</th>
+                                        <th class="col-lg-8 text-center align-middle">Descripción</th>
+                                        <th class="col-lg-1 text-center align-middle">Permisos</th>
+                                        <th class="col-lg-1 text-center align-middle">Opciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for carpeta in carpetas %}
                                     <tr>
-                                        <td>{{carpeta[0]}}</td>
+                                        <td class="align-middle">{{carpeta[0]}}</td>
                                         <input type="hidden" name="cargrupo" value="{{carpeta[1]}}"/>
-                                        <td>{{carpeta[2]}}</td>
+                                        <td class="align-middle">{{carpeta[2]}}</td>
                                         <input type="hidden" name="carprivada" value="{{carpeta[3]}}"/>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-carpeta_nombre="{{ carpeta[0] }}" data-bs-carpeta_grupo="{{ carpeta[1] }}" data-bs-carpeta_desc="{{ carpeta[2] }}" data-bs-carpeta_priv="{{ carpeta[3] }}" data-bs-target="#carpeta-editar">
-                                            Editar
-                                            </button>
+                                        <td class="text-center align-middle">
+                                            <button type="submit" class="btn btn-link"><a title="Editar"><i class="fas fa-edit fa-lg" style="color:#212529" data-bs-toggle="modal" data-bs-carpeta_nombre="{{ carpeta[0] }}" data-bs-carpeta_grupo="{{ carpeta[1] }}" data-bs-carpeta_desc="{{ carpeta[2] }}" data-bs-carpeta_priv="{{ carpeta[3] }}" data-bs-target="#carpeta-editar"></i></a></button>
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center align-middle">
                                             <form action="{{ url_for('file') }}" method="POST">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
                                                 <input type="hidden" name="nombre" value="{{ carpeta[0] }}">
-                                                <button class="btn btn-success btn-sm">Abrir</button>
+                                                <button type="submit" class="btn btn-link"><a title="Abrir"><i class="fas fa-folder-open fa-lg" style="color:#212529"></i></button>
                                             </form>
                                         </td>
                                     </tr>

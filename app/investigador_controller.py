@@ -1,8 +1,8 @@
 import mysql.connector
 from mysql.connector import Error
 
-#HOST='192.168.100.150'
-HOST='172.16.0.63'
+HOST='192.168.100.156'
+#HOST='172.16.0.63'
 
 def tipo_usuario(usuario, contrasena):
     try:
@@ -83,3 +83,52 @@ def info_grupos(usuario, contrasena, ci):
         print("Error durante la conexión: {}".format(ex))
 
     return compartir
+
+def perfil_investigador(usuario, contrasena):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("SELECT INSNOMBRE, INVNOMBRES, INVAPELLIDOS, INVCORREOINSTITUCIONAL, INVURLRESEARCH, INVFOTO, INVBIOGRAFIA, INVTIPO FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+            infoPerfil = cursor.fetchone()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+    finally:
+        if connection.is_connected():
+            connection.close()
+            print("La conexión ha finalizado.")   
+
+    return infoPerfil
+
+def actualizar_perfil(usuario, contrasena, url, bio):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE INVESTIGADOR SET INVURLRESEARCH = %s, INVBIOGRAFIA = %s WHERE INVUSUARIO = %s", (url, bio, usuario,))
+            cursor.close()
+            connection.commit()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+    finally:
+        if connection.is_connected():
+            connection.close()
+            print("La conexión ha finalizado.")

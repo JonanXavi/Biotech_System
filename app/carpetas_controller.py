@@ -3,7 +3,7 @@ from mysql.connector import Error
 import paramiko
 import time
 
-HOST='192.168.100.150'
+HOST='192.168.100.156'
 #HOST='172.16.0.63'
 
 def comprobar_carpetas(usuario, contrasena):
