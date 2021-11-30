@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>404 Error - SB Admin</title>
+        <link href="{{ url_for('static', filename='css/admin/styles.css') }}" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div id="layoutError">
+            <div id="layoutError_content">
+                <main>
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-6">
+                                <div class="text-center mt-4">
+                                    <h1 class="display-1">401</h1>
+                                    <p class="lead">No Autorizado</p>
+                                    <p>El acceso a este recurso esta restringido.</p>
+                                    <a href="{{ url_for('folder') }}">
+                                        <i class="fas fa-arrow-left me-1"></i>
+                                        Regresar al Panel de Trabajo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div id="layoutError_footer">
+                <footer class="text-center text-lg-start" style="background-color: #d9d9db">
+                    <!-- Copyright -->
+                    <div class="text-center p-3">
+                      Copyright &copy 2021 Pontificia Universidad Católica del Ecuador
+                    </div>
+                    <!-- Copyright -->
+                  </footer>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="{{ url_for('static', filename='js/admin/scripts.js') }}"></script>
+    </body>
+</html>

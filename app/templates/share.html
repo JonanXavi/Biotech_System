@@ -19,7 +19,8 @@
                             <table id="tablaArchivos" class="table table-hover table-bordered table-responsive" style="width:100%">
                                 <thead>
                                     <tr class="table-active">
-                                        <th class="col-6 text-center">Nombre del Archivo</th>
+                                        <th class="col-2 text-center">Nombre del Archivo</th>
+                                        <th class="col-lg-8 text-center align-middle">Descripción</th>
                                         <th class="col-lg-2 text-center">Opciones</th>
                                     </tr>
                                 </thead>
@@ -27,6 +28,7 @@
                                     {% for archivo in archivos %}
                                     <tr>
                                         <td>{{archivo[0]}}</td>
+                                        <td>{{archivo[1]}}</td>
 
                                         <form action="{{ url_for('download_file') }}" method="POST">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -50,7 +52,6 @@
             </div>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='js/admin/datatables.js') }}"></script>
 </main>
 
 {% endblock %}

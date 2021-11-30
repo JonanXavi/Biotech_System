@@ -46,3 +46,29 @@ function noEspacios(){
     else
         return true;
 }
+
+function habilitarBoton(){
+    pass1 = document.getElementById('contrasena');
+    pass2 = document.getElementById('contrasena2');
+    boton = document.getElementById("create");
+
+    if (pass1.value !== pass2.value) {
+        document.getElementById("error").classList.remove("ocultar");
+        document.getElementById("ok").classList.remove("mostrar");
+        document.getElementById("error").classList.add("mostrar");
+        document.getElementById("ok").classList.add("ocultar");
+        boton.disabled = true;
+    } else {
+        document.getElementById("error").classList.add("ocultar");
+        document.getElementById("ok").classList.remove("ocultar");
+        document.getElementById("error").classList.remove("mostrar");
+        document.getElementById("ok").classList.add("mostrar");
+        boton.disabled = false;
+    }
+}
+
+function cargaArchivo(){
+    document.getElementById("uploadGif").style.display='block';
+    document.getElementById("uploadBtn").disabled=true;
+    return true;
+}

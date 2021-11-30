@@ -27,7 +27,7 @@
                     <div class="container">
                         <div class="row height d-flex justify-content-center align-items-center"> <!--Ajustar Tablas-->
                             <div class="col-md-8"> <!--Ajustar Tablas-->
-                                <form action="{{ url_for('update_profile') }}" method="POST">
+                                <form action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
                                     <div class="card py-3">
@@ -76,15 +76,26 @@
                                             </div>
                                         </div>
     
+                                        {% if not infoPerfil[5] %}
                                         <div class="mt-2 px-4"> <span class="text-uppercase name">Foto Perfil</span>
                                             <div class="d-flex flex-row align-items-center mt-2"> 
                                                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" width="60" class="rounded">
-                                                <div class="ml-3 px-2"> 
-                                                    <button class="btn btn-outline-primary">Subir nueva foto</button> 
-                                                    <button class="btn btn-outline-danger">Eliminar</button> 
+                                                <div class="ml-3 px-2">
+                                                    <input class="form-control" type="file" id="foto" name="foto">
                                                 </div>
                                             </div>
                                         </div>
+                                        {% else %}
+                                        <div class="mt-2 px-4"> <span class="text-uppercase name">Foto Perfil</span>
+                                            <div class="d-flex flex-row align-items-center mt-2"> 
+                                                <img src="{{ url_for('static', filename='img/admin/pictures/') }}{{infoPerfil[5]}}" width="60" class="rounded">
+                                                <div class="ml-3 px-2">
+                                                    <input class="form-control" type="file" id="foto" name="foto">  
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
                                         <div class="modal-footer mt-2 px-4">
                                             <button type="submit" class="btn btn-primary">Actualizar</button> 
                                         </div>

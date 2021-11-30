@@ -3,24 +3,26 @@ from mysql.connector import Error
 import paramiko
 import time
 
-HOST='192.168.100.156'
+HOST='192.168.100.161'
 #HOST='172.16.0.63'
 
-def comprobar_carpetas(usuario, contrasena):
+def comprobar_carpetas_home(usuario, contrasena):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
-        entrada, salida, error = ssh_client.exec_command('ls -I Documentos -I Escritorio -I Imágenes -I Plantillas -I Público -I Música -I Vídeos')
+        entrada, salida, error = ssh_client.exec_command('ls -d */')
         time.sleep(1)
-        lista = salida.read().decode().replace('\n', ',')
+        lista = salida.read().decode().replace('/\n', ',')
         ssh_client.close()
         carpetasLinux = lista.split(',')
         carpetasLinux.pop()
 
+        '''
         for x in range(len(carpetasLinux)):
             if carpetasLinux[x] == 'Descargas':
-                carpetasLinux[x] = 'Descargas_' + usuario        
+                carpetasLinux[x] = 'Descargas_' + usuario
+        '''        
 
         connection = mysql.connector.connect(
             host=HOST,
@@ -31,23 +33,18 @@ def comprobar_carpetas(usuario, contrasena):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT INVCEDULA, INVPATHHOME, INVTIPO FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        cursor.execute("SELECT INVIDENTIFICACION, INVPATHHOME, INVTIPO FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
         infoInvestigador = cursor.fetchone()
 
-        ci = infoInvestigador[0]
-        tipo = infoInvestigador[2]
-
-        if tipo == 'I':
-            cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVCEDULA = %s AND GRPITIPO = 'P'", (ci,))
+        if infoInvestigador[2] == 'I':
+            cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVIDENTIFICACION = %s AND GRPITIPO = %s", (infoInvestigador[0], 'P',))
             grupo = cursor.fetchone()
 
-            grupoPrincipal = grupo[0]
-            carpetasbd = []
-
-            cursor.execute("SELECT CARNOMBRE FROM CARPETA WHERE INVCEDULA = %s", (ci,))
+            cursor.execute("SELECT CONTNOMBRE FROM CONTENIDO WHERE INVIDENTIFICACION = %s AND CONTTIPO = %s AND CONTDIRECTORIO = %s", (infoInvestigador[0], 'C', infoInvestigador[1],))
             carpetasbd = cursor.fetchall()
 
             carpetas = set().union(*carpetasbd)
+
             nuevasCarpetas = []
 
             for item1 in carpetasLinux:
@@ -61,13 +58,17 @@ def comprobar_carpetas(usuario, contrasena):
 
             if len(nuevasCarpetas) != 0:
                 for item in nuevasCarpetas:
+                    path = infoInvestigador[1] + '/' + item
+                    cursor.execute('INSERT INTO CONTENIDO VALUES (%s, %s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, %s, %s)', (item, infoInvestigador[0], grupo[0], '', path, 'C', infoInvestigador[1],)) 
+                    '''
                     if item == 'Descargas_' + usuario:
                         path = infoInvestigador[1] + '/' + 'Descargas'
-                        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (item, ci, grupoPrincipal, '', path))
+                        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (item, infoInvestigador[0], grupo[0], '', path))
 
                     else:
                         path = infoInvestigador[1] + '/' + item
-                        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (item, ci, grupoPrincipal, '', path))              
+                        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (item, infoInvestigador[0], grupo[0], '', path))              
+                    '''
             else:
                 print('No existen carpetas nuevas')
 
@@ -75,7 +76,7 @@ def comprobar_carpetas(usuario, contrasena):
             connection.commit()
             connection.close()
             
-        elif tipo == 'A':
+        elif infoInvestigador[2] == 'A':
             cursor.close()
             connection.close()
 
@@ -85,8 +86,19 @@ def comprobar_carpetas(usuario, contrasena):
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
 
-def mostrar_carpetas(usuario, contrasena):
+def comprobar_subcarpetas(usuario, contrasena, path):
     try:
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        comando = 'cd ' + path + '/ ' + '\n ls -d */'
+        entrada, salida, error = ssh_client.exec_command(comando)
+        time.sleep(1)
+        lista = salida.read().decode().replace('/\n', ',')
+        ssh_client.close()
+        carpetasLinux = lista.split(',')
+        carpetasLinux.pop()
+
         connection = mysql.connector.connect(
             host=HOST,
             port=3306,
@@ -94,22 +106,46 @@ def mostrar_carpetas(usuario, contrasena):
             password=contrasena,
             db='biologia'
         )
-        
-        carpetas = []
 
         cursor = connection.cursor()
-        cursor.execute("SELECT INVCEDULA FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
-        ci = cursor.fetchone()
+        cursor.execute("SELECT INVIDENTIFICACION FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        infoInvestigador = cursor.fetchone()
 
-        cursor.execute("SELECT CARNOMBRE, GRPNOMBRE, CARDESCRIPCION, CARPRIVADO FROM CARPETA WHERE INVCEDULA = %s", (ci[0],))
-        carpetas = cursor.fetchall()
+        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVIDENTIFICACION = %s AND GRPITIPO = %s", (infoInvestigador[0], 'P',))
+        grupo = cursor.fetchone()
+
+        cursor.execute("SELECT CONTNOMBRE FROM CONTENIDO WHERE INVIDENTIFICACION = %s AND CONTTIPO = %s AND CONTDIRECTORIO = %s", (infoInvestigador[0], 'C', path,))
+        carpetasbd = cursor.fetchall()
+
+        carpetas = set().union(*carpetasbd)
+        nuevasCarpetas = []
+
+        for item1 in carpetasLinux:
+            x = True
+            for item2 in carpetas:
+                if item2 in item1:
+                    x = False
+                    break
+            if x:
+                nuevasCarpetas.append(item1)
+
+        if len(nuevasCarpetas) != 0:
+            for item in nuevasCarpetas:
+                pathS = path + '/' + item
+                cursor.execute('INSERT INTO CONTENIDO VALUES (%s, %s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, %s, %s)', (item, infoInvestigador[0], grupo[0], '', pathS, 'C', path,)) 
+
+        else:
+            print('No existen carpetas nuevas')
+
         cursor.close()
+        connection.commit()
         connection.close()
+
+    except paramiko.ssh_exception.AuthenticationException as e:
+        print('Autenticación Fallida')
 
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
-    
-    return carpetas
 
 def actualizar_info_carpeta(usuario, contrasena, descripcion, opcion, nombre):
     try:
@@ -121,14 +157,23 @@ def actualizar_info_carpeta(usuario, contrasena, descripcion, opcion, nombre):
             db='biologia'
         )
 
-        cursor = connection.cursor()
-        cursor.execute("UPDATE CARPETA SET CARDESCRIPCION = %s, CARPRIVADO = %s WHERE CARNOMBRE = %s", (descripcion, opcion, nombre,))
-        cursor.close()
-        connection.commit()
-        connection.close()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE CONTENIDO SET CONTDESCRIPCION = %s, CONTPRIVADO = %s WHERE CONTNOMBRE = %s", (descripcion, opcion, nombre,))
+            cursor.close()
 
     except Error as ex:
+        actualizar = False
         print("Error durante la conexión: {}".format(ex))
+
+    finally:
+        if connection.is_connected():
+            connection.commit()
+            connection.close()
+            actualizar = True
+            print("La conexión ha finalizado.")
+
+    return actualizar
 
 def nombre_carpeta(usuario, contrasena, nombre):
     try:
@@ -140,24 +185,29 @@ def nombre_carpeta(usuario, contrasena, nombre):
             db='biologia'
         )
 
-        cursor = connection.cursor()
-        cursor.execute("SELECT CARNOMBRE FROM CARPETA WHERE CARNOMBRE = %s", (nombre,))
-        carpeta = cursor.fetchone()
-        cursor.close()
-        connection.close()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("SELECT CONTNOMBRE FROM CONTENIDO WHERE CONTNOMBRE = %s", (nombre,))
+            carpeta = cursor.fetchone()
+            cursor.close()
 
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
 
+    finally:
+        if connection.is_connected():
+            connection.close()
+            print("La conexión ha finalizado.")
+
     return carpeta
 
-def nueva_carpetaOS(usuario, contrasena, nombre):
+def nueva_carpetaOS(usuario, contrasena, path, nombre):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
-        permisos = 'chmod 770 ' + nombre
-        entrada, salida, error = ssh_client.exec_command('mkdir ' + nombre + '\n' + permisos)
+        permisos = 'chmod 770 ' + path + '/' + nombre
+        entrada, salida, error = ssh_client.exec_command('mkdir ' + path + '/' + nombre + '\n' + permisos)
         time.sleep(1)
         ssh_client.close()
 
@@ -169,7 +219,7 @@ def nueva_carpetaOS(usuario, contrasena, nombre):
 
     return connectionOS
 
-def nueva_carpetaBDD(usuario, contrasena, nombre, descripcion):
+def nueva_carpetaBDD(usuario, contrasena, path, nombre, descripcion):
     try:
         connection = mysql.connector.connect(
             host=HOST,
@@ -180,22 +230,31 @@ def nueva_carpetaBDD(usuario, contrasena, nombre, descripcion):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT INVCEDULA, INVPATHHOME FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        cursor.execute("SELECT INVIDENTIFICACION FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
         info = cursor.fetchone()
 
-        ci = info[0]
-        path = info[1]
-
-        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVCEDULA = %s AND GRPITIPO = %s", (ci, 'P',))
+        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVIDENTIFICACION = %s AND GRPITIPO = %s", (info[0], 'P',))
         grupo = cursor.fetchone()
 
-        grupoPrincipal = grupo[0]
         pathCarpeta = path + '/' + nombre
 
-        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (nombre, ci, grupoPrincipal, descripcion, pathCarpeta))
+        cursor.execute('INSERT INTO CONTENIDO VALUES (%s, %s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, %s, %s)', (nombre, info[0], grupo[0], descripcion, pathCarpeta, 'C', path,))
         cursor.close()
         connection.commit()
         connection.close()
 
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
+
+def carpeta_descargas(usuario, contrasena):
+    try:
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        permisos = 'chmod 770 /Descargas_' + usuario
+        entrada, salida, error = ssh_client.exec_command('mkdir Descargas_' + usuario + '\n' + permisos)
+        time.sleep(1)
+        ssh_client.close()
+
+    except paramiko.ssh_exception.AuthenticationException as e:
+        print('Autenticación Fallida')

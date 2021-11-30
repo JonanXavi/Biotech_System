@@ -30,21 +30,33 @@
 
                             <table id="" class="table table-hover table-bordered table-responsive" style="width:100%">
                                 <div class="d-flex justify-content-end">
-                                    <a class="nav-link" href="{{ url_for('add_user') }}" title="Agregar Usuario"><i class="fas fa-user-plus fa-lg" style="color:#212529"></i></a>
+                                    <a class="nav-link" title="Agregar Usuario" data-bs-toggle="modal" data-bs-target="#nuevo-usuario">
+                                        <i class="fas fa-user-plus fa-lg" style="color:#212529"></i>
+                                    </a>
                                 </div>
                                 <thead>
                                     <tr class="table-active">
-                                        <th class="col-3 text-center">Investigador</th>
-                                        <th class="col-lg-5 text-center">Institución</th>
-                                        <th class="col-lg-4 text-center">Correo</th>
+                                        <th class="col-3 text-center align-middle">Investigador</th>
+                                        <th class="col-lg-4 text-center align-middle">Institución</th>
+                                        <th class="col-lg-2 text-center align-middle">Correo</th>
+                                        <th class="col-lg-2 text-center align-middle">Grupo Principal</th>
+                                        <th class="col-lg-1 text-center align-middle">Opciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for investigador in investigadores %}
                                     <tr>
-                                        <td>{{investigador[1]}} {{investigador[2]}}</td>
-                                        <td>{{investigador[0]}}</td>
-                                        <td>{{investigador[3]}}</td>
+                                        <input type="hidden" name="idtInvest" value="{{investigador[0]}}"/>
+                                        <input type="hidden" name="userInvest" value="{{investigador[1]}}"/>
+                                        <td class="align-middle">{{investigador[3]}} {{investigador[4]}}</td>
+                                        <td class="align-middle">{{investigador[2]}}</td>
+                                        <td class="align-middle">{{investigador[5]}}</td>
+                                        <td class="text-center align-middle">{{investigador[6]}}</td>
+                                        <td class="text-center align-middle">
+                                            <div class="btn-group">
+                                                <button type="submit" class="btn btn-link"><a title="Grupo Secundario"><i class="fas fa-users-cog fa-lg" style="color:#212529" data-bs-toggle="modal" data-bs-investigador-nombre="{{investigador[3]}} {{investigador[4]}}" data-bs-usuario-idt="{{ investigador[0] }}" data-bs-user-invest="{{ investigador[1] }}" data-bs-target="#asignar-grupo"></i></a></button>                                                
+                                            </div>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -58,5 +70,4 @@
         </div>
     </div>
 </main>
-<script src="{{ url_for('static', filename='js/admin/datatables.js') }}"></script>
 {% endblock %}

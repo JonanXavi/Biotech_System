@@ -3,9 +3,9 @@ compartirModal.addEventListener('show.bs.modal', function (event) {
 
   var button = event.relatedTarget
 
-  var nombreArchivoC = button.getAttribute('data-bs-archivo_nombreC')
+  var nombreArchivo = button.getAttribute('data-bs-archivo_nombre')
 
   var modalArchivoC = document.querySelector('#nombreArchivoC')
 
-  modalArchivoC.value = nombreArchivoC
+  modalArchivoC.value = nombreArchivo
 });

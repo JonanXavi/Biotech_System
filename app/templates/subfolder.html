@@ -5,7 +5,7 @@
 {% block content %}
 <main>
     <div class="container-fluid px-4">
-        <h1 class="mt-2">Carpeta: {{home[1]}}</h1>
+        <h1 class="mt-2">Carpeta: {{path}}</h1>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -28,10 +28,10 @@
 
                             <table id="tablaCarpetas" class="table table-hover table-bordered table-responsive" style="width:100%">
                                 <div class="d-flex justify-content-end">
-                                    <a class="nav-link" title="Crear Carpeta" data-bs-toggle="modal" data-bs-new-nombre="{{ home[1] }}" data-bs-target="#nueva-carpeta">
+                                    <a class="nav-link" title="Crear Carpeta" data-bs-toggle="modal" data-bs-new-nombre="{{ path }}" data-bs-target="#nueva-carpeta">
                                         <i class="fas fa-folder-plus fa-lg" style="color:#212529"></i>
                                     </a>
-                                    <a class="nav-link" title="Subir Archivo" data-bs-toggle="modal" data-bs-new-file="{{ home[1] }}" data-bs-target="#subir-archivo">
+                                    <a class="nav-link" title="Subir Archivo" data-bs-toggle="modal" data-bs-new-file="{{ path }}" data-bs-target="#subir-archivo">
                                         <i class="fas fa-upload fa-lg" style="color:#212529"></i>
                                     </a>
                                 </div>

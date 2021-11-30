@@ -1,197 +1,154 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>BioTech Home</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <!-- Bootstrap -->
-    <link href="{{ url_for('static', filename='css/home/bootstrap.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/home/bootstrap-responsive.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/home/style.css') }}" rel="stylesheet"> 
-    
-    <!--Font-->
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600' rel='stylesheet' type='text/css'>
-    
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-      
-      <!-- Fav and touch icons -->
-      <link rel="shortcut icon" href="ico/favicon.ico">
-      <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
-      <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
-      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
-      <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+	<head>
+	  <meta charset="utf-8">
+	  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	  <title>BioTech Home</title>
+	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	  <meta name="description" content="">
+	  <meta name="author" content="">
+	  <!-- Bootstrap -->
+	  <link href="../static/css/home/bootstrap.css" rel="stylesheet">
+	  <link href="../static/css/home/style.css" rel="stylesheet">
 
-    <!-- SCRIPT 
-    ============================================================-->  
-    <script src="http://code.jquery.com/jquery.js"></script>
-    <script src="{{ url_for('static', filename='js/home/bootstrap.min.js') }}"></script>
-      
-  </head>
-  <body>
-  <!--HEADER ROW-->
-  <div id="header-row">
-    <div class="container">
-      <div class="row">
-              <!--LOGO-->
-              <div class="span3"><a class="brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='img/home/logo1.png') }}"/></a></div>
-              <!-- /LOGO -->
+	  <!--Font-->
+	  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600' rel='stylesheet' type='text/css'>
 
-            <!-- MAIN NAVIGATION -->  
-              <div class="span9">
-                <div class="navbar">
-                  <div class="navbar-inner">
-                    <a data-target=".navbar-responsive-collapse" data-toggle="collapse" class="btn btn-navbar"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a>
-                    <div class="nav-collapse collapse navbar-responsive-collapse">
+	  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+	  <!--[if lt IE 9]>
+		  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
 
-                      <ul class="nav pull-left">
-                        <li><a href="{{ url_for('index') }}">Inicio</a></li>
-                      </ul>
-                    
-                      <ul class="nav pull-right">
-                        <li><a href="{{ url_for('login') }}">Iniciar sesión</a></li>
-                      </ul>
+	  <!-- Fav and touch icons -->
+	  <link rel="shortcut icon" href="ico/favicon.ico">
+	  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+	  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+	  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+	  <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
 
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <!-- MAIN NAVIGATION -->  
+	  <!-- SCRIPT 
+		============================================================-->
+	  <script src="http://code.jquery.com/jquery.js"></script>
+	  <script src="../static/js/home/bootstrap.min.js"></script>
+	</head>
+
+<body>
+  <!--NAVBAR-->
+  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #a6edff">
+    <div class="container navbar-inner">
+	  <img src="{{ url_for('static', filename='img/home/logo1.png') }}" class="d-inline-block align-text-top">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mb-lg-0">
+          <li class="nav-item px-3 active">
+            <a class="nav-link" aria-current="page" href="{{ url_for('index') }}">Inicio</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{{ url_for('login') }}">Iniciar sesión</a>
+          </li>
+        </ul>
       </div>
     </div>
-  </div>
-  <!-- /HEADER ROW -->
-
-  
+  </nav>
+  <!--/NAVBAR-->
+  <br>
   <div class="container">
-
-  <!--Carousel
-  ==================================================-->
-
-  <div id="myCarousel" class="carousel slide">
-    <div class="carousel-inner">
-
-      <div class="active item">
-        <div class="container">
-          <div class="row">
-            
-              <div class="span6">
-
-                <div class="carousel-caption">
-                      <h1>Facultad de Ciencias Exactas y Naturales</h1>
-                      <h2>Escuela de Ciencias Biológicas</h2>
-                      <p class="lead">Eje principal del proyecto, quienes se encuentran a cargo del estudio, investigación y secuenciación de genomas de Drosophila.</p>
-                </div>
-
-              </div>
-
-              <br>
-              <div class="span6"> <img src="{{ url_for('static', filename='img/home/slide/slide1.jpg') }}"> </div>
-
+    <!-- CAROUSEL -->
+    <div id="carouselFacultades" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-indicators d-flex justify-content-start">
+        <button type="button" data-bs-target="#carouselFacultades" data-bs-slide-to="0" class="active"
+          aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#carouselFacultades" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      </div>
+      <div class="carousel-inner" style=" width:100%; height: 500px !important;">
+        <div class="carousel-item active">
+          <div class="row align-items-center">
+            <div class="col">
+              <h1>Facultad de Ciencias Exactas y Naturales</h1>
+              <h2>Escuela de Ciencias Biológicas</h2>
+              <p class="lead">Eje principal del proyecto, quienes se encuentran a cargo del estudio, investigación y
+                secuenciación de genomas de Drosophila.</p>
+            </div>
+            <div class="col">
+              <img class="d-block w-100" src="{{ url_for('static', filename='img/home/slide/slide1.jpg') }}">
+            </div>
           </div>
         </div>
-
-      </div>
-
-      <div class="item">
-       
-        <div class="container">
-          <div class="row">
-            
-              <div class="span6">
-
-                <div class="carousel-caption">
-                      <h1>Facultad de Ingeniería</h1>
-                      <h2>Escuela de Sistemas y Computación</h2>
-                      <p class="lead">A cargo del apoyo y soporte tecnológico, creando y diseñando soluciones que ayuden a los investigadores en su trabajo.</p>
-                </div>
-
-              </div>
-
-                <br>
-                <div class="span6"> <img src="{{ url_for('static', filename='img/home/slide/slide2.jpg') }}"></div>
-
+        <div class="carousel-item">
+          <div class="row align-items-center">
+            <div class="col">
+              <h1>Facultad de Ingeniería</h1>
+              <h2>Escuela de Sistemas y Computación</h2>
+              <p class="lead">A cargo del apoyo y soporte tecnológico, creando y diseñando soluciones que ayuden a los
+                investigadores en su trabajo.</p>
+            </div>
+            <div class="col">
+              <img class="d-block w-100" src="{{ url_for('static', filename='img/home/slide/slide2.jpg') }}">
+            </div>
           </div>
         </div>
-
       </div>
-
     </div>
-       <!-- Carousel nav -->
-      <a class="carousel-control left " href="#myCarousel" data-slide="prev"><i class="icon-chevron-left"></i></a>
-      <a class="carousel-control right" href="#myCarousel" data-slide="next"><i class="icon-chevron-right"></i></a>
-        <!-- /.Carousel nav -->
+    <!-- /CAROUSEL -->
+    <br><br>
+    <h1 class="text-center">Principales organismos con los que trabajamos</h1>
+    <br>
+    <!-- SECCION INSECTOS -->
+    <div class="row justify-content-center">
+      <div class="d-flex justify-content-center">
+        <div class="card" style="width: 20rem;">
+          <div class="card-header text-center">
+            <h3>Drosophila</h3>
+          </div>
+          <img src="{{ url_for('static', filename='img/home/icon1.png') }}" class="card-img-top">
+          <div class="card-body">
+            <p class="card-text" style="text-align: justify;">
+              Los genomas son herramientas de análisis biológico en varios campos de la investigación, entre ellos la
+              conservación de la diversidad biológica y el estudio de los procesos evolutivos de las especies.
 
-  </div>
-    <!-- /Carousel -->
-
-<!-- Feature 
-  ==============================================-->
-  <div class="row feature-box">
-    <div class="span12 cnt-title">
-      <h1>Principales organismos con los que trabajamos</h1>       
-    </div>
-  </div>
-
-  <div class="row feature-box2">
-
-    <div class="span4">
-
-      <img src="{{ url_for('static', filename='img/home/icon1.png') }}">
-      <h2>Drosophila</h2>
-      <p>
-        Los genomas son herramientas de análisis biológico en varios campos de la investigación, entre ellos la conservación de la diversidad biológica y el estudio de los procesos evolutivos de las especies.
-      </p>
-      <p>
-        Los genomas de las especies de Drosophila son excelentes modelos para abordar estos temas en la región Neotropical.
-      </p>
-
-      <a href="#">Leer más &rarr;</a>
-
-    </div>
-
-  </div>
-
-<!-- /.Feature -->
-
-  <div class="hr-divider"></div>
-
-<!-- Row View -->
-
-    <div class="row">
-        <div class="span6"><img src="{{ url_for('static', filename='img/home/rowimage.jpg') }}"></div>
-
-        <div class="span6">
-          <img class="hidden-phone" src="{{ url_for('static', filename='img/home/logo2.png') }}" alt="">
-          <h2>Conoce a Nuestros Investigadores</h2>
-            <p style="text-align: justify;"> La escuela de ciencias biológicas cuenta con un gran grupo de profesionales, altamente cualificados y especializados en distintas ramas de la ciencia. 
-              Si deseas conocer a nuestro equipo de investigadores sigue el enlace que se presenta a continuación.</p>
-            <a href="#">Ver perfiles &rarr;</a>
-        </div>
-    </div>
-
-</div>
-
-<!-- /.Row View -->
-
-<!--Footer
-==========================-->
-
-<footer>
-    <div class="container">
-      <div class="row">
-        <div class="span6">Copyright &copy 2021 Pontificia Universidad Católica del Ecuador<br>
+              Los genomas de las especies de Drosophila son excelentes modelos para abordar estos temas en la región
+              Neotropical.
+            </p>
+            <div class="text-center">
+              <a href="#">Leer más &rarr;</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-</footer>
+    <!-- /SECCION INSECTOS -->
+    <br><br>
+    <!-- SECCION INVESTIGADORES -->
+    <div class="row align-items-center">
+      <div class="col">
+        <img class="d-block w-100" src="{{ url_for('static', filename='img/home/rowimage.jpg') }}">
+      </div>
+      <div class="col">
+        <img class="hidden-phone" src="{{ url_for('static', filename='img/home/logo2.png') }}" alt="">
+        <h2 style="padding-top: 20px; padding-bottom: 10px;">Conoce a Nuestros Investigadores</h2>
+        <p style="text-align: justify;"> La escuela de ciencias biológicas cuenta con un gran grupo de profesionales,
+          altamente cualificados y especializados en distintas ramas de la ciencia.
+          Si deseas conocer a nuestro equipo de investigadores sigue el enlace que se presenta a continuación.</p>
+        <a href="#">Ver perfiles &rarr;</a>
+      </div>
+    </div>
+    <!-- /SECCION INVESTIGADORES -->
+  </div>
 
-<!--/.Footer-->
+  <br>
 
-  </body>
+  <footer class="text-center text-lg-start" style="background-color: #d9d9db">
+    <!-- Copyright -->
+    <div class="text-center p-3">
+      Copyright &copy 2021 Pontificia Universidad Católica del Ecuador
+    </div>
+    <!-- Copyright -->
+  </footer>
+</body>
+
 </html>

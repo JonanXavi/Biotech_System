@@ -1,15 +1,17 @@
+import mysql.connector
 from mysql.connector import Error
 from pathlib import Path
 
-import mysql.connector
 import paramiko
 import time
 import os
 
-HOST='192.168.100.156'
+HOST='192.168.100.161'
 #HOST='172.16.0.63'
 
-def comprobar_archivos(usuario, contrasena, nombre):
+ALLOWED_EXTENSIONS = set(["png", "jpg", "jpge"])
+
+def comprobar_archivos_home(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
             host=HOST,
@@ -20,20 +22,22 @@ def comprobar_archivos(usuario, contrasena, nombre):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT ARCHNOMBRE FROM ARCHIVO WHERE CARNOMBRE = %s", (nombre,))
+        cursor.execute("SELECT INVIDENTIFICACION, INVPATHHOME FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        infoInvestigador = cursor.fetchone()
+
+        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVIDENTIFICACION = %s AND GRPITIPO = %s", (infoInvestigador[0], 'P',))
+        grupo = cursor.fetchone()
+
+        cursor.execute("SELECT CONTNOMBRE FROM CONTENIDO WHERE INVIDENTIFICACION = %s AND CONTTIPO = %s AND CONTDIRECTORIO = %s", (infoInvestigador[0], 'A', infoInvestigador[1],))
         archivosbd = cursor.fetchall()
 
         archivos = set().union(*archivosbd)
 
-        cursor.execute("SELECT INVPATHHOME FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
-        infoPath = cursor.fetchone()
-
-        path = infoPath[0]
-
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
-        entrada, salida, error = ssh_client.exec_command('cd ' + path + '/' + nombre + '/' + ' \n ls -p | grep -v /')
+        #entrada, salida, error = ssh_client.exec_command('cd ' + infoPath[0] + '/' + nombre + '/' + ' \n ls -p | grep -v /')
+        entrada, salida, error = ssh_client.exec_command('cd ' + infoInvestigador[1] + '/' + ' \n ls -p | grep -v /')
         time.sleep(1)
         lista = salida.read().decode().replace('\n', ',')
         archivosLinux = lista.split(',')
@@ -53,9 +57,11 @@ def comprobar_archivos(usuario, contrasena, nombre):
 
         if len(nuevosArchivos) != 0:
             for item in nuevosArchivos:
-                pathArchivo = path + '/' + nombre + '/' + item
+                #pathArchivo = path + '/' + nombre + '/' + item
+                pathArchivo = infoInvestigador[1] + '/' + item
                 sftp.chmod(pathArchivo, 0o770)
-                cursor.execute('INSERT INTO ARCHIVO VALUES (%s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT)', (item, nombre, '', pathArchivo))              
+                #cursor.execute('INSERT INTO ARCHIVO VALUES (%s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT)', (item, nombre, '', pathArchivo))
+                cursor.execute('INSERT INTO CONTENIDO VALUES (%s, %s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, %s, %s)', (item, infoInvestigador[0], grupo[0], '', pathArchivo, 'A', infoInvestigador[1],))              
         else:
             print('No existen archivos nuevos')
 
@@ -71,7 +77,7 @@ def comprobar_archivos(usuario, contrasena, nombre):
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
 
-def mostrar_archivos(usuario, contrasena, nombre):
+def comprobar_archivos_subcarpeta(usuario, contrasena, path):
     try:
         connection = mysql.connector.connect(
             host=HOST,
@@ -80,20 +86,66 @@ def mostrar_archivos(usuario, contrasena, nombre):
             password=contrasena,
             db='biologia'
         )
-        
-        archivos = []
 
         cursor = connection.cursor()
-        cursor.execute("SELECT ARCHNOMBRE, CARNOMBRE, ARCHDESCRIPCION, ARCHNUMERODESCARGAS, ARCHPUBLICABLE, ARCHDESCARGA FROM ARCHIVO WHERE CARNOMBRE = %s", (nombre,))
-        archivos = cursor.fetchall()
+        cursor.execute("SELECT INVIDENTIFICACION, INVPATHHOME FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        infoInvestigador = cursor.fetchone()
+
+        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVIDENTIFICACION = %s AND GRPITIPO = %s", (infoInvestigador[0], 'P',))
+        grupo = cursor.fetchone()
+
+        cursor.execute("SELECT CONTNOMBRE FROM CONTENIDO WHERE INVIDENTIFICACION = %s AND CONTTIPO = %s AND CONTDIRECTORIO = %s", (infoInvestigador[0], 'A', path,))
+        archivosbd = cursor.fetchall()
+
+        archivos = set().union(*archivosbd)
+
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        entrada, salida, error = ssh_client.exec_command('cd ' + path + '/' + ' \n ls -p | grep -v /')
+        time.sleep(1)
+        lista = salida.read().decode().replace('\n', ',')
+        archivosLinux = lista.split(',')
+        archivosLinux.pop()
+        sftp = ssh_client.open_sftp()
+
+        nuevosArchivos = []
+
+        for item1 in archivosLinux:
+            x = True
+            for item2 in archivos:
+                if item2 in item1:
+                    x = False
+                    break
+            if x:
+                nuevosArchivos.append(item1)
+
+        if len(nuevosArchivos) != 0:
+            for item in nuevosArchivos:
+                if path == infoInvestigador[1] + '/Descargas_' + usuario:
+                    nombre = usuario + '_' + item
+                    pathArchivo = path + '/' + item
+                    sftp.chmod(pathArchivo, 0o770)
+                    cursor.execute('INSERT INTO CONTENIDO VALUES (%s, %s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, %s, %s)', (nombre, infoInvestigador[0], grupo[0], '', pathArchivo, 'A', path,))
+
+                else:
+                    pathArchivo = path + '/' + item
+                    sftp.chmod(pathArchivo, 0o770)
+                    cursor.execute('INSERT INTO CONTENIDO VALUES (%s, %s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, %s, %s)', (item, infoInvestigador[0], grupo[0], '', pathArchivo, 'A', path,))              
+        else:
+            print('No existen archivos nuevos')
+
+        sftp.close()
+        ssh_client.close()
         cursor.close()
+        connection.commit()
         connection.close()
-        print("La conexión ha finalizado.")     
+
+    except paramiko.ssh_exception.AuthenticationException as e:
+        print('Autenticación Fallida')
 
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
-    
-    return archivos
 
 def actualizar_info_archivo(usuario, contrasena, descripcion, publicable, descarga, nombre):
     try:
@@ -105,14 +157,23 @@ def actualizar_info_archivo(usuario, contrasena, descripcion, publicable, descar
             db='biologia'
         )
 
-        cursor = connection.cursor()
-        cursor.execute("UPDATE ARCHIVO SET ARCHDESCRIPCION = %s, ARCHPUBLICABLE = %s, ARCHDESCARGA = %s WHERE ARCHNOMBRE = %s", (descripcion, publicable, descarga, nombre,))
-        cursor.close()
-        connection.commit()
-        connection.close()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE CONTENIDO SET CONTDESCRIPCION = %s, CONTPRIVADO = %s, CONTDESCARGA = %s WHERE CONTNOMBRE = %s", (descripcion, publicable, descarga, nombre,))
+            cursor.close()
 
     except Error as ex:
+        actualizar = False
         print("Error durante la conexión: {}".format(ex))
+
+    finally:
+        if connection.is_connected():
+            connection.commit()
+            connection.close()
+            actualizar = True
+            print("La conexión ha finalizado.")
+
+    return actualizar
 
 def descargar_archivo(usuario, contrasena, nombre):
     try:
@@ -125,7 +186,7 @@ def descargar_archivo(usuario, contrasena, nombre):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT ARCHNOMBRE, ARCHPATH, ARCHNUMERODESCARGAS, ARCHDESCARGA FROM ARCHIVO WHERE ARCHNOMBRE = %s", (nombre,))
+        cursor.execute("SELECT CONTNOMBRE, CONTPATH, CONTNUMERODESCARGAS, CONTDESCARGA FROM CONTENIDO WHERE CONTNOMBRE = %s", (nombre,))
         infoArchivo = cursor.fetchone()
 
         if infoArchivo[3] == 'N':
@@ -141,15 +202,13 @@ def descargar_archivo(usuario, contrasena, nombre):
                 if os.name == 'nt':
                     pathDescarga = str(Path.home()) + '\\' + 'Downloads' + '\\' + infoArchivo[0]
                     sftp.get(infoArchivo[1], pathDescarga)
-                    print(pathDescarga)
-                    print(infoArchivo[1])
 
-                else:
-                    pathDescarga = str(Path.home()) + '/' + 'Descargas'
+                elif os.name == 'posix':
+                    pathDescarga = str(Path.home()) + '/' + 'Descargas_' + usuario + '/' + infoArchivo[0]
                     sftp.get(infoArchivo[1], pathDescarga)
 
                 contador = int(infoArchivo[2]) + 1
-                cursor.execute("UPDATE ARCHIVO SET ARCHNUMERODESCARGAS = %s WHERE ARCHNOMBRE = %s", (contador, infoArchivo[0],))
+                cursor.execute("UPDATE CONTENIDO SET CONTNUMERODESCARGAS = %s WHERE CONTNOMBRE = %s", (contador, infoArchivo[0],))
                 sftp.close()
                 ssh_client.close()
                 resp = True
@@ -177,7 +236,7 @@ def nombre_archivo(usuario, contrasena, nombre):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT ARCHNOMBRE FROM ARCHIVO WHERE ARCHNOMBRE = %s", (nombre,))
+        cursor.execute("SELECT CONTNOMBRE FROM CONTENIDO WHERE CONTNOMBRE = %s", (nombre,))
         archivo = cursor.fetchone()
         cursor.close()
         connection.close()
@@ -187,36 +246,19 @@ def nombre_archivo(usuario, contrasena, nombre):
 
     return archivo
 
-def subir_archivos(usuario, contrasena, carpeta, archivo, nombreArchivo):
+def subir_archivos(usuario, contrasena, path, archivo, nombreArchivo):
     try:
-        connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
-            user=usuario,
-            password=contrasena,
-            db='biologia'
-        )
-
-        cursor = connection.cursor()
-        cursor.execute("SELECT CARPATH FROM CARPETA WHERE CARNOMBRE = %s", (carpeta,))
-        rutaCarpeta = cursor.fetchone()
-        cursor.close()
-        connection.close()
-
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
         sftp = ssh_client.open_sftp()
-        sftp.chdir(rutaCarpeta[0])
+        sftp.chdir(path)
         sftp.put(archivo, nombreArchivo)
         sftp.close()
         ssh_client.close()
 
     except paramiko.ssh_exception.AuthenticationException as e:
         print('Autenticación Fallida')
-
-    except Error as ex:
-        print("Error durante la conexión: {}".format(ex))
 
 def nombre_archivo_compartido(usuario, contrasena, nombre):
     try:
@@ -229,7 +271,7 @@ def nombre_archivo_compartido(usuario, contrasena, nombre):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM ARCHIVOS_COMPARTIDOS WHERE ARCHNOMBRE = %s", (nombre,))
+        cursor.execute("SELECT * FROM ARCHIVOS_COMPARTIDOS WHERE CONTNOMBRE = %s", (nombre,))
         archivoC = cursor.fetchone()
         cursor.close()
         connection.close()
@@ -239,7 +281,7 @@ def nombre_archivo_compartido(usuario, contrasena, nombre):
 
     return archivoC
 
-def compartir_archivo(usuario, contrasena, ci, nombre):
+def compartir_archivo(usuario, contrasena, idt, nombre):
     try:
         connection = mysql.connector.connect(
             host=HOST,
@@ -249,14 +291,19 @@ def compartir_archivo(usuario, contrasena, ci, nombre):
             db='biologia'
         )
 
-        cursor = connection.cursor()
-        cursor.execute('INSERT INTO ARCHIVOS_COMPARTIDOS VALUES (%s, %s)', (ci, nombre))
-        cursor.close()
-        connection.commit()
-        connection.close()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute('INSERT INTO ARCHIVOS_COMPARTIDOS VALUES (%s, %s)', (idt, nombre))
+            cursor.close()
 
     except Error as ex:
         print("Error durante la conexión: {}".format(ex))
+
+    finally:
+        if connection.is_connected():
+            connection.commit()
+            connection.close()
+            print("La conexión ha finalizado.")
 
 def archivos_compartidos(usuario, contrasena):
     try:
@@ -267,14 +314,12 @@ def archivos_compartidos(usuario, contrasena):
             password=contrasena,
             db='biologia'
         )
-        
-        archivos = []
 
         cursor = connection.cursor()
-        cursor.execute("SELECT INVCEDULA FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
-        ci = cursor.fetchone()
+        cursor.execute("SELECT INVIDENTIFICACION FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        idt = cursor.fetchone()
 
-        cursor.execute("SELECT ARCHNOMBRE FROM ARCHIVOS_COMPARTIDOS WHERE INVCEDULA = %s ", (ci[0],))
+        cursor.execute("SELECT ARCHIVOS_COMPARTIDOS.CONTNOMBRE, CONTENIDO.CONTDESCRIPCION FROM ARCHIVOS_COMPARTIDOS INNER JOIN CONTENIDO ON ARCHIVOS_COMPARTIDOS.CONTNOMBRE = CONTENIDO.CONTNOMBRE WHERE ARCHIVOS_COMPARTIDOS.INVIDENTIFICACION = %s", (idt[0],))
         archivos = cursor.fetchall()
 
         cursor.close()
@@ -285,3 +330,6 @@ def archivos_compartidos(usuario, contrasena):
         print("Error durante la conexión: {}".format(ex))
     
     return archivos
+
+def verificar_foto(archivo):
+    return '.' in archivo and archivo.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS

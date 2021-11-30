@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
 
-HOST='192.168.100.156'
+HOST='192.168.100.161'
 #HOST='172.16.0.63'
 
 def tipo_usuario(usuario, contrasena):
@@ -15,7 +15,7 @@ def tipo_usuario(usuario, contrasena):
         )
         
         cursor = connection.cursor()
-        cursor.execute("SELECT INVTIPO FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        cursor.execute("SELECT INVTIPO, INVPATHHOME FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
         tipoUsuario = cursor.fetchone()
         cursor.close()
         connection.close()
@@ -36,10 +36,8 @@ def info_investigadores(usuario, contrasena):
             db='biologia'
         )
 
-        investigadores = []
-
         cursor = connection.cursor()
-        cursor.execute("SELECT INVCEDULA, INVNOMBRES, INVAPELLIDOS FROM INVESTIGADOR WHERE INVTIPO = %s EXCEPT SELECT INVCEDULA, INVNOMBRES, INVAPELLIDOS FROM INVESTIGADOR WHERE INVUSUARIO = %s", ('I', usuario,))
+        cursor.execute("SELECT INVIDENTIFICACION, INVNOMBRES, INVAPELLIDOS FROM INVESTIGADOR WHERE INVTIPO = %s EXCEPT SELECT INVIDENTIFICACION, INVNOMBRES, INVAPELLIDOS FROM INVESTIGADOR WHERE INVUSUARIO = %s", ('I', usuario,))
         investigadores = cursor.fetchall()
         cursor.close()
         connection.close()
@@ -49,7 +47,7 @@ def info_investigadores(usuario, contrasena):
 
     return investigadores
 
-def info_grupos(usuario, contrasena, ci):
+def info_grupos(usuario, contrasena, idt):
     try:
         connection = mysql.connector.connect(
             host=HOST,
@@ -60,13 +58,13 @@ def info_grupos(usuario, contrasena, ci):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT INVCEDULA FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
+        cursor.execute("SELECT INVIDENTIFICACION FROM INVESTIGADOR WHERE INVUSUARIO = %s", (usuario,))
         propietario = cursor.fetchone()
 
-        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVCEDULA = %s AND GRPITIPO = %s", (propietario[0], 'P',))
+        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVIDENTIFICACION = %s AND GRPITIPO = %s", (propietario[0], 'P',))
         propietarioGrupo = cursor.fetchone()
 
-        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVCEDULA = %s", (ci,))
+        cursor.execute("SELECT GRPNOMBRE FROM GRUPO_INVESTIGADOR WHERE INVIDENTIFICACION = %s", (idt,))
         personaGrupos = cursor.fetchall()
         grupos = set().union(*personaGrupos)
 
@@ -122,6 +120,31 @@ def actualizar_perfil(usuario, contrasena, url, bio):
         if connection.is_connected():
             cursor = connection.cursor()
             cursor.execute("UPDATE INVESTIGADOR SET INVURLRESEARCH = %s, INVBIOGRAFIA = %s WHERE INVUSUARIO = %s", (url, bio, usuario,))
+            cursor.close()
+            connection.commit()
+
+    except Error as ex:
+        print("Error durante la conexión: {}".format(ex))
+
+    finally:
+        if connection.is_connected():
+            connection.close()
+            print("La conexión ha finalizado.")
+
+def actualizar_foto(usuario, contrasena, foto):
+    try:
+        connection = mysql.connector.connect(
+            host=HOST,
+            port=3306,
+            user=usuario,
+            password=contrasena,
+            db='biologia'
+        )
+
+        if connection.is_connected():
+            cursor = connection.cursor()
+
+            cursor.execute("UPDATE INVESTIGADOR SET INVFOTO = %s WHERE INVUSUARIO = %s", (foto, usuario,))
             cursor.close()
             connection.commit()
 

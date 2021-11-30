@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+
+{% block title %}Biotech Admin{% endblock %}
+
+{% block content %}
+
+<main>
+
+    <div class="container-fluid px-4">
+        <h1 class="mt-2">Información Instituciones</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <section class="section">
+                    <div class="columns">
+
+                        <div class="column">
+
+                            <table id="" class="table table-hover table-bordered table-responsive" style="width:100%">
+                                <div class="d-flex justify-content-end">
+                                    <a class="nav-link" title="Agregar Institución" data-bs-toggle="modal" data-bs-target="#nueva-institucion">
+                                        <i class="fas fa-graduation-cap fa-lg" style="color:#212529"></i>
+                                    </a>
+                                </div>
+                                <thead>
+                                    <tr class="table-active">
+                                        <th class="col-3 text-center align-middle">Nombre</th>
+                                        <th class="col-lg-2 text-center align-middle">Ciudad</th>
+                                        <th class="col-lg-7 text-center align-middle">Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for institucion in instituciones %}
+                                    <tr>
+                                        <td class="align-middle">{{institucion[0]}}</td>
+                                        <td class="text-center align-middle">{{institucion[1]}}</td>
+                                        <td class="align-middle">{{institucion[2]}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

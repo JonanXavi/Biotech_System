@@ -459,6 +459,14 @@ div.dataTables_wrapper div.dataTables_filter {
   text-align: left !important;
 }
 
+.ocultar {
+  display: none;
+}
+
+.mostrar {
+  display: block;
+}
+
 .lead {
   font-size: 1.25rem;
   font-weight: 300;
@@ -637,6 +645,7 @@ div.dataTables_wrapper div.dataTables_filter {
     max-width: 1320px;
   }
 }
+
 .row {
   --bs-gutter-x: 1.5rem;
   --bs-gutter-y: 0;

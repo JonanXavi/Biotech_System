@@ -1,14 +1,15 @@
-from flask import Flask, render_template, redirect, request, url_for, session, flash
+from flask import Flask, render_template, redirect, request, url_for, session, flash, abort
 from flask_wtf import CSRFProtect
 from werkzeug.utils import secure_filename
 from config import DevelopmentConfig
 import os
 
 from bdd_controller import inicio_sesion
-from investigador_controller import tipo_usuario, info_investigadores, info_grupos, perfil_investigador, actualizar_perfil
-from carpetas_controller import comprobar_carpetas, mostrar_carpetas, actualizar_info_carpeta, nombre_carpeta, nueva_carpetaOS, nueva_carpetaBDD
-from archivos_controller import comprobar_archivos, mostrar_archivos, actualizar_info_archivo, nombre_archivo, descargar_archivo, subir_archivos, nombre_archivo_compartido, compartir_archivo, archivos_compartidos
-from usuarios_controller import info_usuarios, comprobar_usuario, ingresar_usuarioBDD, registrar_usuarioBDD
+from contenido_controller import mostrar_contenido_home, mostrar_contenido_subcarpeta
+from investigador_controller import tipo_usuario, info_investigadores, info_grupos, perfil_investigador, actualizar_perfil, actualizar_foto
+from carpetas_controller import comprobar_carpetas_home, comprobar_subcarpetas, actualizar_info_carpeta, nombre_carpeta, nueva_carpetaOS, nueva_carpetaBDD, carpeta_descargas
+from archivos_controller import comprobar_archivos_home, comprobar_archivos_subcarpeta, actualizar_info_archivo, nombre_archivo, descargar_archivo, subir_archivos, nombre_archivo_compartido, compartir_archivo, archivos_compartidos, verificar_foto
+from usuarios_controller import info_ciudades, info_usuarios, comprobar_usuario, ingresar_usuarioOS, ingresar_usuarioBDD, registrar_usuarioBDD, info_grupos_sistema, info_instituciones, comprobar_grupo, ingresar_grupoOS, ingresar_grupoBDD, comprobar_institucion, ingresar_institucionBDD, configurar_pass, grupos_os, comprobar_grupos_investigador, nuevo_grupo_investigadorOS, nuevo_grupo_investigadorBDD
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -18,6 +19,18 @@ csrf = CSRFProtect(app)
 @app.route("/home")
 def index():
     return render_template('index.html')
+
+@app.errorhandler(404)
+def page_not_found(err):
+    return render_template("404.html"), 404
+
+@app.errorhandler(401)
+def forbidden(err):
+    return render_template("401.html"), 401
+
+@app.errorhandler(500)
+def internal_error(err):
+    return render_template("500.html"), 500
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -38,11 +51,16 @@ def login():
             session['usertype'] = tipoUsuario[0]
 
             if session['usertype'] == 'I':
-                comprobar_carpetas(username, password)
+                carpeta_descargas(username, password)
+                comprobar_carpetas_home(username, password)
+                comprobar_archivos_home(username, password)
                 return redirect(url_for('folder'))
 
             elif session['usertype'] == 'A':
                 return redirect(url_for('users'))
+
+            else:
+                abort(401)
 
         elif conexion == False:
             msg = 'Usuario o contraseña incorrecto'
@@ -51,7 +69,7 @@ def login():
         return redirect(url_for('folder'))
         
     elif 'username' in session and session['usertype'] == 'A':
-        return redirect(url_for('users')) #Cambiar a direccion de Admin
+        return redirect(url_for('users'))
 
     return render_template('login.html', msg=msg)
 
@@ -70,10 +88,25 @@ def recover():
 @app.route("/folders")
 def folder():
     if 'username' in session and session['usertype'] == 'I':
-        carpetas = mostrar_carpetas(session['username'], session['password'])
-        return render_template('folder.html', carpetas=carpetas)
+        home = tipo_usuario(session['username'], session['password'])
+        comprobar_archivos_home(session['username'], session['password'])
+        contenidos = mostrar_contenido_home(session['username'], session['password'])
+        investigadores = info_investigadores(session['username'], session['password'])
+        return render_template('folder.html', home=home, contenidos=contenidos, investigadores=investigadores)
         
     return redirect(url_for('login'))
+
+@app.route("/subfolders", methods=['POST'])
+def subfolder():
+    if 'username' in session:
+        path = request.form["path"]
+        comprobar_archivos_subcarpeta(session['username'], session['password'], path)
+        comprobar_subcarpetas(session['username'], session['password'], path)
+        contenidos = mostrar_contenido_subcarpeta(session['username'], session['password'], path)
+        investigadores = info_investigadores(session['username'], session['password'])
+        return render_template('subfolder.html', path=path, contenidos=contenidos, investigadores=investigadores)
+
+    return redirect(url_for('login'))        
 
 @app.route("/update_folder", methods=['POST'])
 def update_info_folder():
@@ -83,18 +116,25 @@ def update_info_folder():
             descripcion = request.form['descripcion']
             opcion = 'S' if 'opcion' in request.form else 'N'
 
-            actualizar_info_carpeta(session['username'], session['password'], descripcion, opcion, nombre)
-            return redirect(url_for('folder'))
+            actualizar = actualizar_info_carpeta(session['username'], session['password'], descripcion, opcion, nombre)
+
+            if actualizar == True:
+                msg = 'La información de la carpeta fue actualizada'
+                flash(msg, "success")
+                return redirect(url_for('folder'))
+
+            elif actualizar == False:
+                msg = 'No se pudo actualizar la información de la carpeta'
+                flash(msg, "danger")
+                return redirect(url_for('folder'))
 
     return redirect(url_for('login'))
 
 @app.route("/create_folder", methods=['POST'])
 def create_folder():
-
-    msg = ''
-
     if 'username' in session:
         if request.method == 'POST' and 'carpetaNueva' in request.form  and 'carpetaDescNueva' in request.form:
+            path = request.form['newFolder']
             nombre = request.form['carpetaNueva']
             descripcion = request.form['carpetaDescNueva']
 
@@ -103,13 +143,14 @@ def create_folder():
             if nombreCarpeta:
                 msg = 'Ya existe una carpeta con ese nombre en el sistema'
                 flash(msg, "danger")
+                return redirect(url_for('folder'))
 
             else:
-                connectionOS = nueva_carpetaOS(session['username'], session['password'], nombre)
+                connectionOS = nueva_carpetaOS(session['username'], session['password'], path, nombre)
 
                 if connectionOS == True:
-                    nueva_carpetaBDD(session['username'], session['password'], nombre, descripcion)
-                    msg = 'Carpeta creada correctamente'
+                    nueva_carpetaBDD(session['username'], session['password'], path, nombre, descripcion)
+                    msg = 'Carpeta creada en: ' + path
                     flash(msg, "success")
                     return redirect(url_for('folder'))
                 else:
@@ -117,18 +158,6 @@ def create_folder():
                     flash(msg, "danger")
                     return redirect(url_for('folder'))
 
-    return redirect(url_for('login'))
-
-@app.route("/files", methods=['POST'])
-def file():
-    if 'username' in session:
-        comprobar_archivos(session['username'], session['password'], request.form["nombre"])
-        archivos = mostrar_archivos(session['username'], session['password'], request.form["nombre"])
-        carpetas = mostrar_carpetas(session['username'], session['password'])
-        investigadores = info_investigadores(session['username'], session['password'])
-
-        return render_template('file.html', carpeta=request.form["nombre"], archivos=archivos, carpetas=carpetas, investigadores=investigadores)
-        
     return redirect(url_for('login'))
 
 @app.route("/update_file", methods=['POST'])
@@ -140,8 +169,17 @@ def update_info_file():
             publicable = 'S' if 'publicable' in request.form else 'N'
             descarga = 'S' if 'op-descarga' in request.form else 'N'
 
-            actualizar_info_archivo(session['username'], session['password'], descripcion, publicable, descarga, nombre)
-            return redirect(url_for('folder'))
+            actualizar = actualizar_info_archivo(session['username'], session['password'], descripcion, publicable, descarga, nombre)
+
+            if actualizar == True:
+                msg = 'La información y permisos del archivo fueron actualizados'
+                flash(msg, "success")
+                return redirect(url_for('folder'))
+
+            elif actualizar == False:
+                msg = 'No se pudo actualizar la información y permisos del archivo'
+                flash(msg, "danger")
+                return redirect(url_for('folder'))
 
     return redirect(url_for('login'))
 
@@ -153,7 +191,7 @@ def download_file():
             resp = descargar_archivo(session['username'], session['password'], nombre)
 
             if resp == False:
-                msg = 'El propietario desabilito las descargas del archivo'
+                msg = 'Las descargas del archivo están desabilitadas'
                 flash(msg, "warning")
 
             elif resp == True:
@@ -167,8 +205,8 @@ def download_file():
 def upload_file():
     if 'username' in session:
         if request.method == 'POST':
+            path = request.form['newFile']
             archivoNuevo = request.files['archivo']
-            carpetaUsuario = request.form['carpetasUser']
             nombreArchivo = nombre_archivo(session['username'], session['password'], archivoNuevo.filename)
 
             if nombreArchivo:
@@ -176,20 +214,32 @@ def upload_file():
                 flash(msg, "danger")
 
             else:
-                archivoNuevo.save(os.path.join("temp", secure_filename(archivoNuevo.filename)))
-                temp = os.getcwd()
-                os.chdir(temp + '\\temp') #Windows
-                #os.chdir(temp + '/temp') #Linux
-                temp = os.getcwd()
-                temp = temp + '\\' + archivoNuevo.filename #Windows
-                #temp = temp + '/' + archivoNuevo.filename #Linux
-                subir_archivos(session['username'], session['password'], carpetaUsuario, temp, archivoNuevo.filename)
-                os.remove(temp)
-                os.chdir('..')
-                msg = 'Archivo subido correctamente'
-                flash(msg, "success")
+                nuevoNombre = archivoNuevo.filename.replace(" ", "_")
+                if os.name == 'nt':
+                    archivoNuevo.save(os.path.join("temp", secure_filename(nuevoNombre)))
+                    temp = os.getcwd()
+                    os.chdir(temp + '\\temp')
+                    temp = os.getcwd()
+                    temp = temp + '\\' + nuevoNombre
+                    subir_archivos(session['username'], session['password'], path, temp, archivoNuevo.filename)
+                    os.remove(temp)
+                    os.chdir('..')
+                    msg = 'Archivo subido a: ' + path
+                    flash(msg, "success")
+                    return redirect(url_for('folder'))
 
-                return redirect(url_for('folder'))
+                elif os.name == 'posix':
+                    archivoNuevo.save(os.path.join("temp", secure_filename(archivoNuevo.filename)))
+                    temp = os.getcwd()
+                    os.chdir(temp + '/temp')
+                    temp = os.getcwd()
+                    temp = temp + '/' + archivoNuevo.filename
+                    subir_archivos(session['username'], session['password'], path, temp, archivoNuevo.filename)
+                    os.remove(temp)
+                    os.chdir('..')
+                    msg = 'Archivo subido a: ' + path
+                    flash(msg, "success")
+                    return redirect(url_for('folder'))
 
     return redirect(url_for('login'))
 
@@ -197,10 +247,10 @@ def upload_file():
 def share():
     if 'username' in session:
         if request.method == 'POST':
-            usuarioCI = request.form['investigadoresId']
+            usuarioId = request.form['investigadoresId']
             nombreArchivo = request.form['nombreArchivoC']
 
-            compartir = info_grupos(session['username'], session['password'], usuarioCI)
+            compartir = info_grupos(session['username'], session['password'], usuarioId)
             
             if compartir == True:
                 archivoC = nombre_archivo_compartido(session['username'], session['password'], nombreArchivo)
@@ -210,7 +260,7 @@ def share():
                     flash(msg, "warning")
 
                 else:
-                    compartir_archivo(session['username'], session['password'], usuarioCI, nombreArchivo)
+                    compartir_archivo(session['username'], session['password'], usuarioId, nombreArchivo)
                     msg = 'Archivo compartido correctamente'
                     flash(msg, "success")
                     return redirect(url_for('folder'))
@@ -245,11 +295,40 @@ def update_profile():
     if 'username' in session:
         url = request.form['urlSearch']
         bio = request.form['biografia']
-        actualizar_perfil(session['username'], session['password'], url, bio)
-        msg = 'Información actualizada'
-        flash(msg, "success")
+        foto = request.files['foto']
 
-        return redirect(url_for('profile'))
+        if not foto.filename:
+            actualizar_perfil(session['username'], session['password'], url, bio)
+            msg = 'Información actualizada'
+            flash(msg, "success")
+            return redirect(url_for('profile'))
+
+        else:
+            tipoArchivo = verificar_foto(foto.filename)
+
+            if foto.filename and tipoArchivo:
+                if os.name == 'nt':
+                    foto.save(os.path.join("app/static/img/admin/pictures", secure_filename(foto.filename)))
+                    actualizar_perfil(session['username'], session['password'], url, bio)
+                    actualizar_foto(session['username'], session['password'], foto.filename)
+
+                    msg = 'Información actualizada'
+                    flash(msg, "success")
+                    return redirect(url_for('profile'))
+
+                elif os.name == 'posix':
+                    foto.save(os.path.join("app/static/img/admin/pictures", secure_filename(foto.filename)))
+                    actualizar_perfil(session['username'], session['password'], url, bio)
+                    actualizar_foto(session['username'], session['password'], foto.filename)
+
+                    msg = 'Información actualizada'
+                    flash(msg, "success")
+                    return redirect(url_for('profile'))
+
+            else:
+                msg = 'Formato de foto incorrecto, usar formato PNG o JPG'
+                flash(msg, "danger")
+                return redirect(url_for('profile'))
 
     return redirect(url_for('login'))
 
@@ -257,16 +336,14 @@ def update_profile():
 def users():
     if 'username' in session and session['usertype'] == 'A':
         investigadores = info_usuarios(session['username'], session['password'])
-        return render_template('user.html', investigadores=investigadores)
-        
-    return redirect(url_for('login'))
+        instituciones = info_instituciones(session['username'], session['password'])
+        grupos = info_grupos_sistema(session['username'], session['password'])
+        gruposS = grupos_os(session['username'], session['password'])
+        return render_template('user.html', investigadores=investigadores, instituciones=instituciones, grupos=grupos, gruposS=gruposS)
+    else:
+        abort(401)
 
-@app.route("/add_user")
-def add_user():
-    if 'username' in session and session['usertype'] == 'A':
-        return render_template('add-user.html')
-
-    return redirect(url_for('login'))
+    #return redirect(url_for('login'))
 
 @app.route("/register_user", methods=['POST'])
 def register_user():
@@ -278,6 +355,7 @@ def register_user():
             instituto = request.form['instituto']
             correo = request.form['correo']
             user = request.form['user']
+            grupo = request.form['grupo']
             contrasena = request.form['contrasena']
 
             investigador = comprobar_usuario(session['username'], session['password'], ci)
@@ -287,21 +365,145 @@ def register_user():
                 flash(msg, "danger")
                 return redirect(url_for('users'))
 
-            else:            
-                conexion = ingresar_usuarioBDD(session['username'], session['password'], user, contrasena)
+            else:
+                connectionOS = ingresar_usuarioOS(session['username'], session['password'], user, grupo)
 
-                if conexion == True:
-                    registrar_usuarioBDD(session['username'], session['password'], ci, instituto, user, nombre, apellido, correo)
-                    msg = 'Usuario creado en el sistema'
-                    flash(msg, "success")
-                    return redirect(url_for('users'))
+                if connectionOS == True:
+                    configurar_pass(session['username'], session['password'], user, contrasena)
+                    conexion = ingresar_usuarioBDD(session['username'], session['password'], user, contrasena)
 
-                elif conexion == False:
-                    msg = 'Ocurrio un error al ingresar un nuevo usuario'
+                    if conexion == True:
+                        registrar_usuarioBDD(session['username'], session['password'], ci, instituto, user, grupo, nombre, apellido, correo)
+                        msg = 'Usuario creado en el sistema'
+                        flash(msg, "success")
+                        return redirect(url_for('users'))
+
+                    elif conexion == False:
+                        msg = 'Ocurrio un error al ingresar un nuevo usuario'
+                        flash(msg, "danger")
+                        return redirect(url_for('users'))
+
+                else:
+                    msg = 'Ocurrio un error durante el registro'
                     flash(msg, "danger")
                     return redirect(url_for('users'))
 
-    return redirect(url_for('login'))
+    else:
+        abort(401)
+    
+    #return redirect(url_for('login'))
+
+@app.route("/groups")
+def groups():
+    if 'username' in session and session['usertype'] == 'A':
+        grupos = info_grupos_sistema(session['username'], session['password'])
+        return render_template('group.html', grupos=grupos)
+
+    else:
+        abort(401)
+        
+    #return redirect(url_for('login'))
+
+@app.route("/create_group", methods=['POST'])
+def create_group():
+    if 'username' in session and session['usertype'] == 'A':
+        if request.method == 'POST' and 'grupoNuevo' in request.form  and 'grupoDescNueva' in request.form:
+            nombre = request.form['grupoNuevo']
+            descripcion = request.form['grupoDescNueva']
+
+            nombreGrupo = comprobar_grupo(session['username'], session['password'], nombre)
+
+            if nombreGrupo:
+                msg = 'Ya existe un grupo con ese nombre en el sistema'
+                flash(msg, "danger")
+                return redirect(url_for('groups'))
+
+            else:
+                connectionOS = ingresar_grupoOS(session['username'], session['password'], nombre)
+
+                if connectionOS == True:
+                    ingresar_grupoBDD(session['username'], session['password'], nombre, descripcion)
+                    msg = 'Grupo creado correctamente'
+                    flash(msg, "success")
+                    return redirect(url_for('groups'))
+                else:
+                    msg = 'Ocurrio un error durante el registro'
+                    flash(msg, "danger")
+                    return redirect(url_for('folder'))
+    else:
+        abort(401)
+
+    #return redirect(url_for('login'))
+
+@app.route("/institutes")
+def institutes():
+    if 'username' in session and session['usertype'] == 'A':
+        instituciones = info_instituciones(session['username'], session['password'])
+        ciudades = info_ciudades(session['username'], session['password'])
+        return render_template('institute.html', instituciones=instituciones, ciudades=ciudades)
+    
+    else:
+        abort(401)
+
+    #return redirect(url_for('login'))
+
+@app.route("/create_institute", methods=['POST'])
+def create_institute():
+    if 'username' in session and session['usertype'] == 'A':
+        if request.method == 'POST' and 'institucionNueva' in request.form  and 'institucionDescNueva' in request.form:
+            nombre = request.form['institucionNueva']
+            ciudad = request.form['institucionCiudad']
+            descripcion = request.form['institucionDescNueva']
+
+            institucion = comprobar_institucion(session['username'], session['password'], nombre)
+
+            if institucion:
+                msg = 'Ya existe una institución con ese nombre en el sistema'
+                flash(msg, "danger")
+                return redirect(url_for('institutes'))
+
+            else:
+                ingresar_institucionBDD(session['username'], session['password'], nombre, ciudad, descripcion)
+                msg = 'Institución ingresada correctamente'
+                flash(msg, "success")
+                return redirect(url_for('institutes'))
+    else:
+        abort(401)
+
+    #return redirect(url_for('login'))
+
+@app.route("/add_group_to_user", methods=['POST'])
+def add_group_to_user():
+    if 'username' in session and session['usertype'] == 'A':
+        if request.method == 'POST':
+            idt = request.form['usuarioID']
+            user = request.form['userInvest']
+            grupo = request.form['grupoSecundario']
+
+            grupo_inv = comprobar_grupos_investigador(session['username'], session['password'], grupo, idt)
+
+            if grupo_inv:
+                msg = 'El investigador ya pertenece al grupo seleccionado'
+                flash(msg, "danger")
+                return redirect(url_for('users'))
+
+            else:
+                connectionOS = nuevo_grupo_investigadorOS(session['username'], session['password'], grupo, user)
+
+                if connectionOS == True:
+                    nuevo_grupo_investigadorBDD(session['username'], session['password'], grupo, idt)
+                    msg = 'El grupo: ' + grupo + 'fue asignado a ' + user
+                    flash(msg, "success")
+                    return redirect(url_for('users'))
+
+                elif connectionOS == False:
+                    msg = 'Ocurrio un error durante la asignacion de grupo'
+                    flash(msg, "danger")
+                    return redirect(url_for('users'))
+    else:
+        abort(401)
+
+    #return redirect(url_for('login'))
 
 if __name__=='__main__':
     csrf.init_app(app)
