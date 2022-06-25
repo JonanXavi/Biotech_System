@@ -1,24 +1,22 @@
 import mysql.connector
 from mysql.connector import Error
 from pathlib import Path
+from flask import current_app as app
 
 import paramiko
 import time
 import os
-
-HOST='192.168.100.161'
-#HOST='172.16.0.63'
 
 ALLOWED_EXTENSIONS = set(["png", "jpg", "jpge"])
 
 def comprobar_archivos_home(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -35,8 +33,7 @@ def comprobar_archivos_home(usuario, contrasena):
 
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
-        #entrada, salida, error = ssh_client.exec_command('cd ' + infoPath[0] + '/' + nombre + '/' + ' \n ls -p | grep -v /')
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
         entrada, salida, error = ssh_client.exec_command('cd ' + infoInvestigador[1] + '/' + ' \n ls -p | grep -v /')
         time.sleep(1)
         lista = salida.read().decode().replace('\n', ',')
@@ -57,10 +54,8 @@ def comprobar_archivos_home(usuario, contrasena):
 
         if len(nuevosArchivos) != 0:
             for item in nuevosArchivos:
-                #pathArchivo = path + '/' + nombre + '/' + item
                 pathArchivo = infoInvestigador[1] + '/' + item
                 sftp.chmod(pathArchivo, 0o770)
-                #cursor.execute('INSERT INTO ARCHIVO VALUES (%s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT)', (item, nombre, '', pathArchivo))
                 cursor.execute('INSERT INTO CONTENIDO VALUES (%s, %s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, %s, %s)', (item, infoInvestigador[0], grupo[0], '', pathArchivo, 'A', infoInvestigador[1],))              
         else:
             print('No existen archivos nuevos')
@@ -80,11 +75,11 @@ def comprobar_archivos_home(usuario, contrasena):
 def comprobar_archivos_subcarpeta(usuario, contrasena, path):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -101,7 +96,7 @@ def comprobar_archivos_subcarpeta(usuario, contrasena, path):
 
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
         entrada, salida, error = ssh_client.exec_command('cd ' + path + '/' + ' \n ls -p | grep -v /')
         time.sleep(1)
         lista = salida.read().decode().replace('\n', ',')
@@ -150,11 +145,11 @@ def comprobar_archivos_subcarpeta(usuario, contrasena, path):
 def actualizar_info_archivo(usuario, contrasena, descripcion, publicable, descarga, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -178,11 +173,11 @@ def actualizar_info_archivo(usuario, contrasena, descripcion, publicable, descar
 def descargar_archivo(usuario, contrasena, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -196,7 +191,7 @@ def descargar_archivo(usuario, contrasena, nombre):
             try:
                 ssh_client = paramiko.SSHClient()
                 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+                ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
                 sftp = ssh_client.open_sftp()
 
                 if os.name == 'nt':
@@ -228,11 +223,11 @@ def descargar_archivo(usuario, contrasena, nombre):
 def nombre_archivo(usuario, contrasena, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -250,7 +245,7 @@ def subir_archivos(usuario, contrasena, path, archivo, nombreArchivo):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
         sftp = ssh_client.open_sftp()
         sftp.chdir(path)
         sftp.put(archivo, nombreArchivo)
@@ -263,11 +258,11 @@ def subir_archivos(usuario, contrasena, path, archivo, nombreArchivo):
 def nombre_archivo_compartido(usuario, contrasena, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -284,11 +279,11 @@ def nombre_archivo_compartido(usuario, contrasena, nombre):
 def compartir_archivo(usuario, contrasena, idt, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -308,11 +303,11 @@ def compartir_archivo(usuario, contrasena, idt, nombre):
 def archivos_compartidos(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()

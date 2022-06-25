@@ -343,8 +343,6 @@ def users():
     else:
         abort(401)
 
-    #return redirect(url_for('login'))
-
 @app.route("/register_user", methods=['POST'])
 def register_user():
     if 'username' in session and session['usertype'] == 'A':
@@ -390,8 +388,6 @@ def register_user():
 
     else:
         abort(401)
-    
-    #return redirect(url_for('login'))
 
 @app.route("/groups")
 def groups():
@@ -401,8 +397,6 @@ def groups():
 
     else:
         abort(401)
-        
-    #return redirect(url_for('login'))
 
 @app.route("/create_group", methods=['POST'])
 def create_group():
@@ -433,8 +427,6 @@ def create_group():
     else:
         abort(401)
 
-    #return redirect(url_for('login'))
-
 @app.route("/institutes")
 def institutes():
     if 'username' in session and session['usertype'] == 'A':
@@ -444,8 +436,6 @@ def institutes():
     
     else:
         abort(401)
-
-    #return redirect(url_for('login'))
 
 @app.route("/create_institute", methods=['POST'])
 def create_institute():
@@ -470,8 +460,6 @@ def create_institute():
     else:
         abort(401)
 
-    #return redirect(url_for('login'))
-
 @app.route("/add_group_to_user", methods=['POST'])
 def add_group_to_user():
     if 'username' in session and session['usertype'] == 'A':
@@ -492,7 +480,7 @@ def add_group_to_user():
 
                 if connectionOS == True:
                     nuevo_grupo_investigadorBDD(session['username'], session['password'], grupo, idt)
-                    msg = 'El grupo: ' + grupo + 'fue asignado a ' + user
+                    msg = 'El grupo: ' + grupo + ' ' + 'fue asignado a ' + user
                     flash(msg, "success")
                     return redirect(url_for('users'))
 
@@ -502,8 +490,6 @@ def add_group_to_user():
                     return redirect(url_for('users'))
     else:
         abort(401)
-
-    #return redirect(url_for('login'))
 
 if __name__=='__main__':
     csrf.init_app(app)

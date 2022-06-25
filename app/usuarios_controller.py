@@ -1,18 +1,16 @@
 import mysql.connector
 from mysql.connector import Error
 import paramiko
-
-HOST='192.168.100.161'
-#HOST='172.16.0.63'
+from flask import current_app as app
 
 def info_ciudades(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -34,11 +32,11 @@ def info_ciudades(usuario, contrasena):
 def info_usuarios(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -60,11 +58,11 @@ def info_usuarios(usuario, contrasena):
 def info_grupos_sistema(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -86,11 +84,11 @@ def info_grupos_sistema(usuario, contrasena):
 def info_instituciones(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -112,11 +110,11 @@ def info_instituciones(usuario, contrasena):
 def comprobar_usuario(usuario, contrasena, ci):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -139,7 +137,7 @@ def ingresar_usuarioOS(usuario, contrasena, user, grupo):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
  
         ssh_client.get_transport()
  
@@ -168,11 +166,11 @@ def ingresar_usuarioOS(usuario, contrasena, user, grupo):
 def ingresar_usuarioBDD(usuario, contrasena, user, passw):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='mysql'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -207,11 +205,11 @@ def ingresar_usuarioBDD(usuario, contrasena, user, passw):
 def registrar_usuarioBDD(usuario, contrasena, ci, instituto, user, grupo, nombre, apellido, correo):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -233,11 +231,11 @@ def registrar_usuarioBDD(usuario, contrasena, ci, instituto, user, grupo, nombre
 def comprobar_grupo(usuario, contrasena, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -260,7 +258,7 @@ def ingresar_grupoOS(usuario, contrasena, nombre):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
 
         ssh_client.get_transport()
 
@@ -289,11 +287,11 @@ def ingresar_grupoOS(usuario, contrasena, nombre):
 def ingresar_grupoBDD(usuario, contrasena, nombre, descripcion):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -313,11 +311,11 @@ def ingresar_grupoBDD(usuario, contrasena, nombre, descripcion):
 def comprobar_institucion(usuario, contrasena, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -339,11 +337,11 @@ def comprobar_institucion(usuario, contrasena, nombre):
 def ingresar_institucionBDD(usuario, contrasena, nombre, ciudad, descripcion):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -364,7 +362,7 @@ def configurar_pass(usuario, contrasena, user, passw):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
 
         ssh_client.get_transport()
 
@@ -388,11 +386,11 @@ def configurar_pass(usuario, contrasena, user, passw):
 def comprobar_grupos_investigador(usuario, contrasena, nombre, ci):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -415,7 +413,7 @@ def nuevo_grupo_investigadorOS(usuario, contrasena, grupo, user):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
 
         ssh_client.get_transport()
 
@@ -444,11 +442,11 @@ def nuevo_grupo_investigadorOS(usuario, contrasena, grupo, user):
 def nuevo_grupo_investigadorBDD(usuario, contrasena, grupo, id):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -468,11 +466,11 @@ def nuevo_grupo_investigadorBDD(usuario, contrasena, grupo, id):
 def grupos_os(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():

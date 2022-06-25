@@ -1,17 +1,15 @@
 import mysql.connector
 from mysql.connector import Error
-
-HOST='192.168.100.161'
-#HOST='172.16.0.63'
+from flask import current_app as app
 
 def tipo_usuario(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
         
         cursor = connection.cursor()
@@ -29,11 +27,11 @@ def tipo_usuario(usuario, contrasena):
 def info_investigadores(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -50,11 +48,11 @@ def info_investigadores(usuario, contrasena):
 def info_grupos(usuario, contrasena, idt):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -85,11 +83,11 @@ def info_grupos(usuario, contrasena, idt):
 def perfil_investigador(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -110,11 +108,11 @@ def perfil_investigador(usuario, contrasena):
 def actualizar_perfil(usuario, contrasena, url, bio):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -134,11 +132,11 @@ def actualizar_perfil(usuario, contrasena, url, bio):
 def actualizar_foto(usuario, contrasena, foto):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():

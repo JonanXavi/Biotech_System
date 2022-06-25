@@ -1,17 +1,15 @@
 import mysql.connector
 from mysql.connector import Error
-
-HOST='192.168.100.161'
-#HOST='172.16.0.63'
+from flask import current_app as app
 
 def inicio_sesion(usuario, contrasena):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
         conexion = True
         connection.close() 

@@ -2,34 +2,26 @@ import mysql.connector
 from mysql.connector import Error
 import paramiko
 import time
-
-HOST='192.168.100.161'
-#HOST='172.16.0.63'
+from flask import current_app as app
 
 def comprobar_carpetas_home(usuario, contrasena):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
         entrada, salida, error = ssh_client.exec_command('ls -d */')
         time.sleep(1)
         lista = salida.read().decode().replace('/\n', ',')
         ssh_client.close()
         carpetasLinux = lista.split(',')
-        carpetasLinux.pop()
-
-        '''
-        for x in range(len(carpetasLinux)):
-            if carpetasLinux[x] == 'Descargas':
-                carpetasLinux[x] = 'Descargas_' + usuario
-        '''        
+        carpetasLinux.pop() 
 
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -60,15 +52,6 @@ def comprobar_carpetas_home(usuario, contrasena):
                 for item in nuevasCarpetas:
                     path = infoInvestigador[1] + '/' + item
                     cursor.execute('INSERT INTO CONTENIDO VALUES (%s, %s, %s, %s, %s, DEFAULT, DEFAULT, DEFAULT, %s, %s)', (item, infoInvestigador[0], grupo[0], '', path, 'C', infoInvestigador[1],)) 
-                    '''
-                    if item == 'Descargas_' + usuario:
-                        path = infoInvestigador[1] + '/' + 'Descargas'
-                        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (item, infoInvestigador[0], grupo[0], '', path))
-
-                    else:
-                        path = infoInvestigador[1] + '/' + item
-                        cursor.execute('INSERT INTO CARPETA VALUES (%s, %s, %s, %s, %s, DEFAULT)', (item, infoInvestigador[0], grupo[0], '', path))              
-                    '''
             else:
                 print('No existen carpetas nuevas')
 
@@ -90,7 +73,7 @@ def comprobar_subcarpetas(usuario, contrasena, path):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(app.config['HOST'], port=22, username=usuario, password=contrasena)
         comando = 'cd ' + path + '/ ' + '\n ls -d */'
         entrada, salida, error = ssh_client.exec_command(comando)
         time.sleep(1)
@@ -100,11 +83,11 @@ def comprobar_subcarpetas(usuario, contrasena, path):
         carpetasLinux.pop()
 
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -150,11 +133,11 @@ def comprobar_subcarpetas(usuario, contrasena, path):
 def actualizar_info_carpeta(usuario, contrasena, descripcion, opcion, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -178,11 +161,11 @@ def actualizar_info_carpeta(usuario, contrasena, descripcion, opcion, nombre):
 def nombre_carpeta(usuario, contrasena, nombre):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         if connection.is_connected():
@@ -205,7 +188,7 @@ def nueva_carpetaOS(usuario, contrasena, path, nombre):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
         permisos = 'chmod 770 ' + path + '/' + nombre
         entrada, salida, error = ssh_client.exec_command('mkdir ' + path + '/' + nombre + '\n' + permisos)
         time.sleep(1)
@@ -222,11 +205,11 @@ def nueva_carpetaOS(usuario, contrasena, path, nombre):
 def nueva_carpetaBDD(usuario, contrasena, path, nombre, descripcion):
     try:
         connection = mysql.connector.connect(
-            host=HOST,
-            port=3306,
+            host=app.config['HOST'],
+            port=app.config['PORT'],
             user=usuario,
             password=contrasena,
-            db='biologia'
+            db=app.config['BD']
         )
 
         cursor = connection.cursor()
@@ -250,7 +233,7 @@ def carpeta_descargas(usuario, contrasena):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(hostname=HOST, port=22, username=usuario, password=contrasena)
+        ssh_client.connect(hostname=app.config['HOST'], port=22, username=usuario, password=contrasena)
         permisos = 'chmod 770 /Descargas_' + usuario
         entrada, salida, error = ssh_client.exec_command('mkdir Descargas_' + usuario + '\n' + permisos)
         time.sleep(1)
